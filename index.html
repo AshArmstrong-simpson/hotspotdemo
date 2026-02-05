@@ -4,33 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simpson Associates | Hotspot Policing & Demand Forecasting</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root{
-    --navy:#0B1120;--navy-2:#111B30;--navy-3:#192545;
-    --blue:#2563EB;--blue-d:#1D4ED8;--blue-l:#60A5FA;
-    --teal:#0D9488;--teal-l:#2DD4BF;
-    --purple:#8B5CF6;--red:#EF4444;--orange:#F97316;--amber:#EAB308;--green:#22C55E;
-    --g50:#F8FAFC;--g100:#F1F5F9;--g200:#E2E8F0;--g300:#CBD5E1;
-    --g400:#94A3B8;--g500:#64748B;--g600:#475569;--g700:#334155;--g800:#1E293B;--g900:#0F172A;
-    --radius:14px;
-    --shadow:0 1px 3px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.06);
-    --shadow-lg:0 8px 30px rgba(0,0,0,.12);
+    --navy:#2A4149;--navy-2:#22353C;--navy-3:#2E4A53;
+    --blue:#2C83D3;--blue-d:#226A92;--blue-l:#5BA8E6;
+    --teal:#10CA72;--teal-l:#3DD98D;
+    --purple:#8876E4;--red:#EF4444;--orange:#F97316;--amber:#EAB308;--green:#10CA72;
+    --g50:#F3F1ED;--g100:#EBE9E4;--g200:#E5E5E5;--g300:#CBD5E1;
+    --g400:#979797;--g500:#64748B;--g600:#475569;--g700:#334155;--g800:#22353C;--g900:#2A4149;
+    --sa-gradient:linear-gradient(-37deg,#8876E4 0%,#1E8BC8 98%);
+    --radius:10px;
+    --shadow:0 1px 3px rgba(42,65,73,.06),0 4px 12px rgba(42,65,73,.05);
+    --shadow-lg:0 8px 30px rgba(42,65,73,.1);
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Outfit',sans-serif;background:var(--g50);color:var(--g900);line-height:1.5;overflow-x:hidden}
+body{font-family:'Inter',sans-serif;background:var(--g50);color:var(--g900);line-height:1.5;overflow-x:hidden;-webkit-font-smoothing:antialiased}
 
 /* HEADER */
 header{background:var(--navy);padding:.75rem 2rem;position:fixed;width:100%;top:0;z-index:2000;border-bottom:1px solid rgba(255,255,255,.08)}
 .hdr{max-width:1440px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
 .logo{display:flex;align-items:center;gap:.6rem;text-decoration:none}
-.logo-mark{width:36px;height:36px;background:linear-gradient(135deg,var(--blue),var(--teal));border-radius:8px;display:grid;place-items:center}
+.logo-mark{width:36px;height:36px;background:var(--sa-gradient);border-radius:8px;display:grid;place-items:center}
 .logo-mark svg{width:20px;height:20px}
-.logo-name{font-weight:700;font-size:1.15rem;color:#fff;letter-spacing:-.02em}
-.logo-name em{font-style:normal;color:var(--teal-l)}
+.logo-name{font-weight:700;font-size:1.15rem;color:#fff;letter-spacing:-.01em}
+.logo-name em{font-style:normal;color:var(--teal-l);font-weight:400}
 .top-nav{display:flex;gap:.25rem;background:rgba(255,255,255,.06);border-radius:10px;padding:3px}
 .top-tab{padding:.55rem 1.2rem;border:none;background:0;color:var(--g400);font-weight:500;font-size:.875rem;border-radius:8px;cursor:pointer;transition:.2s;font-family:inherit}
 .top-tab:hover{color:#fff;background:rgba(255,255,255,.06)}
@@ -42,10 +43,10 @@ header{background:var(--navy);padding:.75rem 2rem;position:fixed;width:100%;top:
 
 /* HERO */
 .hero{background:var(--navy);padding:7rem 2rem 3.5rem;position:relative;overflow:hidden}
-.hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 50%,rgba(37,99,235,.12) 0%,transparent 60%)}
+.hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 50%,rgba(44,131,211,.12) 0%,transparent 60%)}
 .hero-inner{max-width:1440px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;position:relative;z-index:1}
 .hero h1{font-size:3.2rem;font-weight:800;color:#fff;line-height:1.08;letter-spacing:-.03em;margin-bottom:1.2rem}
-.hero h1 span{background:linear-gradient(135deg,var(--blue-l),var(--teal-l));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero h1 span{background:var(--sa-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .hero p{color:var(--g400);font-size:1.15rem;margin-bottom:2rem;max-width:520px}
 .hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
 .h-stat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:1.1rem;text-align:center}
@@ -84,7 +85,7 @@ main{max-width:1440px;margin:0 auto;padding:2rem}
 .c-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.25rem}
 .c-title{font-weight:600;font-size:1rem}.c-sub{color:var(--g500);font-size:.82rem;margin-top:.15rem}
 .badge{padding:.2rem .65rem;border-radius:16px;font-size:.72rem;font-weight:600}
-.b-info{background:rgba(37,99,235,.1);color:var(--blue)}.b-ok{background:rgba(34,197,94,.1);color:var(--green)}
+.b-info{background:rgba(44,131,211,.1);color:var(--blue)}.b-ok{background:rgba(16,202,114,.1);color:var(--green)}
 .b-warn{background:rgba(234,179,8,.1);color:var(--amber)}.b-err{background:rgba(239,68,68,.1);color:var(--red)}
 .span3{grid-column:span 3}.span4{grid-column:span 4}.span5{grid-column:span 5}.span6{grid-column:span 6}.span7{grid-column:span 7}.span8{grid-column:span 8}.span12{grid-column:span 12}
 .chart-box{height:280px;position:relative}
@@ -93,7 +94,7 @@ main{max-width:1440px;margin:0 auto;padding:2rem}
 .filters{display:flex;gap:.75rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center}
 .filters label{font-size:.85rem;color:var(--g600);font-weight:500}
 .fsel{padding:.5rem 2rem .5rem .7rem;border:1px solid var(--g300);border-radius:8px;font-size:.85rem;color:var(--g700);background:#fff;font-family:inherit;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .6rem center}
-.fsel:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+.fsel:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(44,131,211,.12)}
 
 /* TOGGLE */
 .toggle-wrap{display:flex;align-items:center;gap:.5rem;margin-left:auto}
@@ -151,7 +152,7 @@ main{max-width:1440px;margin:0 auto;padding:2rem}
 .res-name{font-weight:600;font-size:.85rem;color:var(--g800);margin-bottom:.3rem}
 .res-val{font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:700;color:var(--blue)}
 .res-status{font-size:.75rem;color:var(--g500)}
-.koper-box{background:linear-gradient(135deg,rgba(37,99,235,.05),rgba(13,148,136,.05));border:1px solid rgba(37,99,235,.15);border-radius:12px;padding:1.5rem;margin-top:1.25rem}
+.koper-box{background:linear-gradient(135deg,rgba(44,131,211,.05),rgba(136,118,228,.05));border:1px solid rgba(44,131,211,.15);border-radius:12px;padding:1.5rem;margin-top:1.25rem}
 .koper-box h4{font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:.5rem}
 .koper-box p{font-size:.88rem;color:var(--g600);line-height:1.6}
 .koper-box .koper-highlight{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--blue);font-size:1.1rem}
@@ -162,7 +163,7 @@ main{max-width:1440px;margin:0 auto;padding:2rem}
 .peel.eff{border-top-color:var(--blue)}.peel.effi{border-top-color:var(--teal)}.peel.leg{border-top-color:var(--purple)}
 .peel-hdr{display:flex;align-items:center;gap:.6rem;margin-bottom:1.2rem}
 .peel-ico{width:36px;height:36px;border-radius:9px;display:grid;place-items:center}
-.peel.eff .peel-ico{background:rgba(37,99,235,.1)}.peel.effi .peel-ico{background:rgba(13,148,136,.1)}.peel.leg .peel-ico{background:rgba(139,92,246,.1)}
+.peel.eff .peel-ico{background:rgba(44,131,211,.1)}.peel.effi .peel-ico{background:rgba(16,202,114,.1)}.peel.leg .peel-ico{background:rgba(136,118,228,.1)}
 .peel-ico svg{width:18px;height:18px}
 .peel-t{font-weight:600;font-size:1rem}
 .pm{display:flex;justify-content:space-between;align-items:center;padding:.65rem 0;border-bottom:1px solid var(--g100)}
@@ -178,7 +179,7 @@ main{max-width:1440px;margin:0 auto;padding:2rem}
 .rank-table{width:100%;border-collapse:separate;border-spacing:0;font-size:.85rem}
 .rank-table th{background:var(--g50);padding:.7rem .85rem;text-align:left;font-weight:600;color:var(--g700);font-size:.78rem;text-transform:uppercase;letter-spacing:.03em;border-bottom:2px solid var(--g200);position:sticky;top:0}
 .rank-table td{padding:.65rem .85rem;border-bottom:1px solid var(--g100);color:var(--g700)}
-.rank-table tr:hover td{background:rgba(37,99,235,.03)}
+.rank-table tr:hover td{background:rgba(44,131,211,.03)}
 .rank-table .rank-num{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--blue);font-size:.9rem}
 .rank-table .force-name{font-weight:600;color:var(--g900)}
 .rank-table .metric-val{font-family:'JetBrains Mono',monospace;font-weight:600}
@@ -187,7 +188,7 @@ main{max-width:1440px;margin:0 auto;padding:2rem}
 .table-scroll{max-height:500px;overflow-y:auto;border-radius:10px;border:1px solid var(--g200)}
 
 /* INSIGHT PANEL */
-.insight-wrap{background:linear-gradient(135deg,var(--navy),var(--navy-3));border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow-lg)}
+.insight-wrap{background:linear-gradient(135deg,var(--navy),var(--navy-2));border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow-lg)}
 .insight-wrap .c-title{color:#fff}.insight-wrap .c-sub{color:var(--g400)}
 .ins-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem}
 .ins{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:1.15rem}
@@ -231,7 +232,7 @@ main{max-width:1440px;margin:0 auto;padding:2rem}
 .c-form{background:#fff;border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow)}
 .c-form label{display:block;font-size:.85rem;font-weight:500;color:var(--g700);margin-bottom:.35rem}
 .c-form input,.c-form textarea,.c-form select{width:100%;padding:.65rem .85rem;border:1px solid var(--g300);border-radius:8px;font-family:inherit;font-size:.9rem;margin-bottom:1rem;transition:.2s}
-.c-form input:focus,.c-form textarea:focus,.c-form select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.c-form input:focus,.c-form textarea:focus,.c-form select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(44,131,211,.1)}
 .c-form textarea{height:110px;resize:vertical}
 .c-btn{background:var(--blue);color:#fff;border:none;padding:.75rem 2rem;border-radius:10px;font-size:.95rem;font-weight:600;cursor:pointer;transition:.2s;font-family:inherit}
 .c-btn:hover{background:var(--blue-d)}
@@ -552,9 +553,9 @@ footer a{color:var(--teal-l);text-decoration:none}
 <div class="page" id="pg-solutions">
 <div class="pg-hero"><h1>Our Policing Solutions</h1><p>Purpose-built analytics and AI solutions for UK police forces, designed to accelerate data maturity and deliver measurable operational impact.</p></div>
 <div class="sol-grid">
-    <div class="sol-card"><div class="sol-ico" style="background:rgba(37,99,235,.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div><h3>Hotspot Policing Analytics</h3><p>Geospatial crime analysis with hexagonal grid mapping, temporal pattern detection, and risk-scored hotspot prioritisation for all 43 forces. Aligned to the Home Office Hot Spot Response Programme.</p><div class="sol-stats"><span class="sol-stat"><strong>17%</strong> avg crime reduction</span><span class="sol-stat"><strong>14%</strong> violence reduction</span></div></div>
-    <div class="sol-card"><div class="sol-ico" style="background:rgba(13,148,136,.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><h3>Demand Forecasting</h3><p>ML-driven predictions of incident volumes by crime type, location, and time period. Incorporates ONS Crime Severity Scores, seasonality, events, weather, and NTE patterns.</p><div class="sol-stats"><span class="sol-stat"><strong>76%+</strong> prediction accuracy</span><span class="sol-stat"><strong>7-day</strong> forecast horizon</span></div></div>
-    <div class="sol-card"><div class="sol-ico" style="background:rgba(139,92,246,.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/></svg></div><h3>Resource Allocation Engine</h3><p>AI-optimised deployment using Koper Curve evidence for patrol dosage. Matches officers, PCSOs, and specialist units to predicted demand by shift and risk level.</p><div class="sol-stats"><span class="sol-stat"><strong>94%</strong> utilisation rate</span><span class="sol-stat"><strong>15 min</strong> optimal patrol</span></div></div>
+    <div class="sol-card"><div class="sol-ico" style="background:rgba(44,131,211,.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div><h3>Hotspot Policing Analytics</h3><p>Geospatial crime analysis with hexagonal grid mapping, temporal pattern detection, and risk-scored hotspot prioritisation for all 43 forces. Aligned to the Home Office Hot Spot Response Programme.</p><div class="sol-stats"><span class="sol-stat"><strong>17%</strong> avg crime reduction</span><span class="sol-stat"><strong>14%</strong> violence reduction</span></div></div>
+    <div class="sol-card"><div class="sol-ico" style="background:rgba(16,202,114,.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><h3>Demand Forecasting</h3><p>ML-driven predictions of incident volumes by crime type, location, and time period. Incorporates ONS Crime Severity Scores, seasonality, events, weather, and NTE patterns.</p><div class="sol-stats"><span class="sol-stat"><strong>76%+</strong> prediction accuracy</span><span class="sol-stat"><strong>7-day</strong> forecast horizon</span></div></div>
+    <div class="sol-card"><div class="sol-ico" style="background:rgba(136,118,228,.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/></svg></div><h3>Resource Allocation Engine</h3><p>AI-optimised deployment using Koper Curve evidence for patrol dosage. Matches officers, PCSOs, and specialist units to predicted demand by shift and risk level.</p><div class="sol-stats"><span class="sol-stat"><strong>94%</strong> utilisation rate</span><span class="sol-stat"><strong>15 min</strong> optimal patrol</span></div></div>
     <div class="sol-card"><div class="sol-ico" style="background:rgba(234,179,8,.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div><h3>Data Analytics Accelerator</h3><p>Pre-configured Azure analytics platform for policing. Ingest crime data from data.police.uk, census, deprivation indices, and weather data for integrated operational intelligence.</p><div class="sol-stats"><span class="sol-stat"><strong>12+</strong> data sources</span><span class="sol-stat"><strong>33k</strong> LSOAs mapped</span></div></div>
     <div class="sol-card"><div class="sol-ico" style="background:rgba(239,68,68,.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div><h3>RedactXpert</h3><p>AI-powered auto-redaction using Microsoft Cognitive Services. Automatically detects and redacts PII from documents, reducing the 770,000 hours/year forces spend on manual redaction.</p><div class="sol-stats"><span class="sol-stat"><strong>50%</strong> time savings</span><span class="sol-stat"><strong>99.2%</strong> PII detection</span></div></div>
     <div class="sol-card"><div class="sol-ico" style="background:rgba(34,197,94,.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><h3>PEEL Performance Framework</h3><p>Analytics aligned to HMICFRS inspection criteria. Track effectiveness, efficiency, and legitimacy with auditable metrics. Supports the College of Policing's problem-solving approach to performance.</p><div class="sol-stats"><span class="sol-stat"><strong>3</strong> PEEL pillars</span><span class="sol-stat"><strong>12</strong> KPI categories</span></div></div>
@@ -565,10 +566,10 @@ footer a{color:var(--teal-l);text-decoration:none}
 <div class="page" id="pg-casestudies">
 <div class="pg-hero"><h1>Case Studies</h1><p>See how UK police forces are transforming their operations with Simpson Associates' data analytics and AI solutions.</p></div>
 <div class="cs-grid">
-    <div class="cs-card"><div class="cs-top" style="background:linear-gradient(135deg,var(--blue),var(--teal))"><div class="cs-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div></div><div class="cs-body"><h3>Derbyshire Constabulary: Data Analytics Transformation</h3><p>Built a unified data platform enabling self-sufficient analytics capability. Delivered knowledge transfer ensuring force ownership of the solution and ongoing data maturity improvement.</p><div class="cs-metrics"><div class="cs-metric"><strong>40%</strong> faster reporting</div><div class="cs-metric"><strong>12</strong> data sources unified</div></div><span class="cs-tag badge b-info">Data Platform</span></div></div>
-    <div class="cs-card"><div class="cs-top" style="background:linear-gradient(135deg,var(--purple),var(--blue))"><div class="cs-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div></div><div class="cs-body"><h3>South Wales &amp; Gwent: Joint Data Analytics Programme</h3><p>Delivery partner for the JDAP initiative, revolutionising intelligence-led policing, resource allocation, and public safety through integrated data-driven insights across both forces.</p><div class="cs-metrics"><div class="cs-metric"><strong>2</strong> forces integrated</div><div class="cs-metric"><strong>23%</strong> efficiency gain</div></div><span class="cs-tag badge b-ok">Intelligence Led</span></div></div>
-    <div class="cs-card"><div class="cs-top" style="background:linear-gradient(135deg,var(--red),var(--orange))"><div class="cs-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div></div><div class="cs-body"><h3>Cleveland Police: AI-Powered Redaction</h3><p>Deployed RedactXpert achieving 50% reduction in redaction processing time. AI auto-detection of PII across thousands of documents, freeing investigator hours for frontline work.</p><div class="cs-metrics"><div class="cs-metric"><strong>50%</strong> time reduction</div><div class="cs-metric"><strong>5k+</strong> docs processed</div></div><span class="cs-tag badge b-err">AI Redaction</span></div></div>
-    <div class="cs-card"><div class="cs-top" style="background:linear-gradient(135deg,var(--teal),var(--green))"><div class="cs-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div></div><div class="cs-body"><h3>TOEX: National Capabilities Environment</h3><p>Key delivery partner for the Tackling Organised Exploitation programme, now approved for nationwide funding by the Home Office, making investigative tools available to all 43 forces.</p><div class="cs-metrics"><div class="cs-metric"><strong>43</strong> forces access</div><div class="cs-metric"><strong>National</strong> rollout</div></div><span class="cs-tag badge b-warn">National Programme</span></div></div>
+    <div class="cs-card"><div class="cs-top" style="background:linear-gradient(-37deg,#8876E4 0%,#1E8BC8 98%)"><div class="cs-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div></div><div class="cs-body"><h3>Derbyshire Constabulary: Data Analytics Transformation</h3><p>Built a unified data platform enabling self-sufficient analytics capability. Delivered knowledge transfer ensuring force ownership of the solution and ongoing data maturity improvement.</p><div class="cs-metrics"><div class="cs-metric"><strong>40%</strong> faster reporting</div><div class="cs-metric"><strong>12</strong> data sources unified</div></div><span class="cs-tag badge b-info">Data Platform</span></div></div>
+    <div class="cs-card"><div class="cs-top" style="background:linear-gradient(-37deg,#2C83D3 0%,#226A92 98%)"><div class="cs-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div></div><div class="cs-body"><h3>South Wales &amp; Gwent: Joint Data Analytics Programme</h3><p>Delivery partner for the JDAP initiative, revolutionising intelligence-led policing, resource allocation, and public safety through integrated data-driven insights across both forces.</p><div class="cs-metrics"><div class="cs-metric"><strong>2</strong> forces integrated</div><div class="cs-metric"><strong>23%</strong> efficiency gain</div></div><span class="cs-tag badge b-ok">Intelligence Led</span></div></div>
+    <div class="cs-card"><div class="cs-top" style="background:linear-gradient(-37deg,#EF4444 0%,#2A4149 98%)"><div class="cs-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div></div><div class="cs-body"><h3>Cleveland Police: AI-Powered Redaction</h3><p>Deployed RedactXpert achieving 50% reduction in redaction processing time. AI auto-detection of PII across thousands of documents, freeing investigator hours for frontline work.</p><div class="cs-metrics"><div class="cs-metric"><strong>50%</strong> time reduction</div><div class="cs-metric"><strong>5k+</strong> docs processed</div></div><span class="cs-tag badge b-err">AI Redaction</span></div></div>
+    <div class="cs-card"><div class="cs-top" style="background:linear-gradient(-37deg,#10CA72 0%,#2A4149 98%)"><div class="cs-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div></div><div class="cs-body"><h3>TOEX: National Capabilities Environment</h3><p>Key delivery partner for the Tackling Organised Exploitation programme, now approved for nationwide funding by the Home Office, making investigative tools available to all 43 forces.</p><div class="cs-metrics"><div class="cs-metric"><strong>43</strong> forces access</div><div class="cs-metric"><strong>National</strong> rollout</div></div><span class="cs-tag badge b-warn">National Programme</span></div></div>
 </div>
 </div>
 
@@ -603,7 +604,7 @@ footer a{color:var(--teal-l);text-decoration:none}
 </div>
 </div>
 
-<footer><p><strong>Simpson Associates</strong> — Data Transformation Partner to UK Police Forces<br>Demo Environment — Synthetic Data Only | Built on Azure AI + Microsoft Fabric | <a href="https://www.simpson-associates.co.uk">www.simpson-associates.co.uk</a></p></footer>
+<footer><p><strong>Simpson Associates</strong> — Data Transformation Partner to UK Police Forces<br>Demo Environment – Synthetic Data Only | Built on Microsoft Azure &amp; Fabric | <a href="https://www.simpson-associates.co.uk">www.simpson-associates.co.uk</a></p></footer>
 
 <script>
 /* ═══════════════════════════════════════════════════════
@@ -1109,7 +1110,7 @@ document.getElementById('cssMapToggle').addEventListener('change',applyFilters);
 function applyFilters(){renderHotspots(document.getElementById('filterForce').value,document.getElementById('filterCrime').value);}
 
 // ── Charts ──
-Chart.defaults.font.family="'Outfit',sans-serif";Chart.defaults.color='#64748B';
+Chart.defaults.font.family="'Inter',sans-serif";Chart.defaults.color='#64748B';
 let temporalChartInstance,trendChartInstance,compareRadarInstance,depChartInstance,forceTypeChartInstance;
 
 function initCharts(){
@@ -1117,15 +1118,15 @@ function initCharts(){
   const months=['Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan'];
   trendChartInstance=new Chart(document.getElementById('trendChart'),{type:'line',data:{labels:months,datasets:[
     {label:'Violence',data:[4200,3800,4100,4500,5200,5800,6200,5900,5100,4800,4400,4600],borderColor:'#EF4444',backgroundColor:'rgba(239,68,68,.06)',tension:.4,fill:true},
-    {label:'Theft',data:[6800,6200,5900,6400,7200,8500,9200,8800,7600,6900,6100,6500],borderColor:'#2563EB',backgroundColor:'rgba(37,99,235,.06)',tension:.4,fill:true},
+    {label:'Theft',data:[6800,6200,5900,6400,7200,8500,9200,8800,7600,6900,6100,6500],borderColor:'#2C83D3',backgroundColor:'rgba(44,131,211,.06)',tension:.4,fill:true},
     {label:'Criminal Damage',data:[3400,3200,2900,2600,2400,2200,2100,2300,2800,3100,3500,3300],borderColor:'#F97316',backgroundColor:'rgba(249,115,22,.06)',tension:.4,fill:true},
-    {label:'Drug Offences',data:[1800,1900,2100,2200,2400,2500,2600,2400,2200,2000,1800,1900],borderColor:'#8B5CF6',backgroundColor:'rgba(139,92,246,.06)',tension:.4,fill:true}
+    {label:'Drug Offences',data:[1800,1900,2100,2200,2400,2500,2600,2400,2200,2000,1800,1900],borderColor:'#8876E4',backgroundColor:'rgba(136,118,228,.06)',tension:.4,fill:true}
   ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',padding:15}}},scales:{y:{beginAtZero:true,ticks:{callback:v=>v>=1000?(v/1000)+'k':v}}}}});
 
   // Crime Mix Doughnut
   const mixData=Object.entries(CRIME_LABELS).map(([k,v])=>({label:v,key:k}));
   const natMix={violence:21,sexual:3.2,robbery:3.5,burglary:10.5,theft:24,damage:11.5,drugs:5,weapons:1.8,'public-order':8,misc:2.8,fraud:6.5,cyber:1.2};
-  new Chart(document.getElementById('crimeMixChart'),{type:'doughnut',data:{labels:mixData.map(m=>m.label),datasets:[{data:mixData.map(m=>natMix[m.key]||1),backgroundColor:['#EF4444','#EC4899','#F97316','#EAB308','#2563EB','#64748B','#8B5CF6','#DC2626','#0D9488','#94A3B8','#6366F1','#14B8A6'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:11},usePointStyle:true,pointStyle:'circle',padding:8}},tooltip:{callbacks:{label:ctx=>ctx.label+': '+ctx.raw+'%'}}},cutout:'60%'}});
+  new Chart(document.getElementById('crimeMixChart'),{type:'doughnut',data:{labels:mixData.map(m=>m.label),datasets:[{data:mixData.map(m=>natMix[m.key]||1),backgroundColor:['#EF4444','#EC4899','#F97316','#EAB308','#2C83D3','#64748B','#8876E4','#DC2626','#10CA72','#94A3B8','#8876E4','#14B8A6'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:11},usePointStyle:true,pointStyle:'circle',padding:8}},tooltip:{callbacks:{label:ctx=>ctx.label+': '+ctx.raw+'%'}}},cutout:'60%'}});
 
   // Risk Doughnut
   const riskCounts={crit:0,high:0,med:0,low:0};
@@ -1134,7 +1135,7 @@ function initCharts(){
 
   // CSS Trend
   new Chart(document.getElementById('cssTrendChart'),{type:'line',data:{labels:months,datasets:[
-    {label:'Total Severity Score',data:[14200,13800,13500,13900,14800,15600,16200,15800,14900,14200,13600,13900],borderColor:'#2563EB',backgroundColor:'rgba(37,99,235,.08)',tension:.4,fill:true,pointRadius:3},
+    {label:'Total Severity Score',data:[14200,13800,13500,13900,14800,15600,16200,15800,14900,14200,13600,13900],borderColor:'#2C83D3',backgroundColor:'rgba(44,131,211,.08)',tension:.4,fill:true,pointRadius:3},
     {label:'Violence CSS',data:[5800,5400,5600,6100,6800,7200,7600,7200,6400,5900,5500,5700],borderColor:'#EF4444',backgroundColor:'rgba(239,68,68,.06)',tension:.4,fill:true,pointRadius:3},
     {label:'Robbery CSS',data:[2100,1900,2000,2200,2500,2800,3000,2700,2300,2100,1900,2000],borderColor:'#F97316',backgroundColor:'rgba(249,115,22,.06)',tension:.4,fill:true,pointRadius:3}
   ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',padding:12}}},scales:{y:{beginAtZero:true,title:{display:true,text:'Severity Score (weighted days)'},ticks:{callback:v=>v>=1000?(v/1000)+'k':v}}}}});
@@ -1146,35 +1147,35 @@ function initCharts(){
 
   // Forecast Chart
   new Chart(document.getElementById('forecastChart'),{type:'line',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun','Mon','Tue','Wed','Thu'],datasets:[
-    {label:'Actual',data:[720,685,742,798,1089,1245,912,null,null,null,null],borderColor:'#2563EB',backgroundColor:'rgba(37,99,235,.08)',tension:.4,fill:true,pointRadius:4},
-    {label:'Predicted',data:[null,null,null,847,1124,1289,923,712,698,756,802],borderColor:'#0D9488',borderDash:[5,5],tension:.4,pointRadius:4},
-    {label:'95% CI Upper',data:[null,null,null,932,1236,1418,1015,783,768,832,882],borderColor:'rgba(13,148,136,.2)',backgroundColor:'rgba(13,148,136,.06)',fill:'+1',pointRadius:0,borderWidth:1},
-    {label:'95% CI Lower',data:[null,null,null,762,1012,1160,831,641,628,680,722],borderColor:'rgba(13,148,136,.2)',fill:false,pointRadius:0,borderWidth:1}
+    {label:'Actual',data:[720,685,742,798,1089,1245,912,null,null,null,null],borderColor:'#2C83D3',backgroundColor:'rgba(44,131,211,.08)',tension:.4,fill:true,pointRadius:4},
+    {label:'Predicted',data:[null,null,null,847,1124,1289,923,712,698,756,802],borderColor:'#10CA72',borderDash:[5,5],tension:.4,pointRadius:4},
+    {label:'95% CI Upper',data:[null,null,null,932,1236,1418,1015,783,768,832,882],borderColor:'rgba(16,202,114,.2)',backgroundColor:'rgba(16,202,114,.06)',fill:'+1',pointRadius:0,borderWidth:1},
+    {label:'95% CI Lower',data:[null,null,null,762,1012,1160,831,641,628,680,722],borderColor:'rgba(16,202,114,.2)',fill:false,pointRadius:0,borderWidth:1}
   ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',padding:12,filter:item=>!item.text.includes('CI')}}},scales:{y:{beginAtZero:true}}}});
 
   // Category Forecast
   new Chart(document.getElementById('categoryChart'),{type:'bar',data:{labels:['Violence','Theft','Burglary','Damage','Drugs','Public Order','Robbery'],datasets:[
-    {label:'Current Week',data:[2450,4120,1560,1890,780,1340,560],backgroundColor:'#2563EB',borderRadius:4},
-    {label:'Forecast Next',data:[2680,3890,1420,1950,720,1410,620],backgroundColor:'#0D9488',borderRadius:4}
+    {label:'Current Week',data:[2450,4120,1560,1890,780,1340,560],backgroundColor:'#2C83D3',borderRadius:4},
+    {label:'Forecast Next',data:[2680,3890,1420,1950,720,1410,620],backgroundColor:'#10CA72',borderRadius:4}
   ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'rectRounded',padding:12}}},scales:{y:{beginAtZero:true}}}});
 
   // Seasonal Factors
   new Chart(document.getElementById('seasonalChart'),{type:'bar',data:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],datasets:[
     {label:'Seasonal Index',data:[0.92,0.88,0.95,1.02,1.08,1.15,1.22,1.18,1.05,0.98,0.90,0.95],backgroundColor:ctx=>ctx.raw>1.1?'#EF4444':ctx.raw>1?'#F97316':ctx.raw>0.9?'#EAB308':'#22C55E',borderRadius:4},
-    {label:'NTE Multiplier',data:[1.05,1.02,1.08,1.12,1.15,1.25,1.32,1.28,1.12,1.08,1.05,1.18],type:'line',borderColor:'#8B5CF6',tension:.4,pointRadius:3}
+    {label:'NTE Multiplier',data:[1.05,1.02,1.08,1.12,1.15,1.25,1.32,1.28,1.12,1.08,1.05,1.18],type:'line',borderColor:'#8876E4',tension:.4,pointRadius:3}
   ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',padding:12}}},scales:{y:{min:0.7,max:1.5,title:{display:true,text:'Multiplier (1.0 = baseline)'}}}}});
 
   // Shift Coverage
   new Chart(document.getElementById('shiftChart'),{type:'line',data:{labels:['06:00','08:00','10:00','12:00','14:00','16:00','18:00','20:00','22:00','00:00','02:00','04:00'],datasets:[
     {label:'Predicted Demand',data:[35,62,78,95,88,102,124,156,178,145,85,42],borderColor:'#EF4444',tension:.4,fill:false,pointRadius:3},
     {label:'Current Staffing',data:[45,85,95,100,100,95,110,140,165,130,75,45],borderColor:'#22C55E',tension:.4,fill:false,pointRadius:3},
-    {label:'Recommended',data:[40,70,82,98,92,105,128,160,182,150,88,45],borderColor:'#2563EB',borderDash:[5,5],tension:.4,fill:false,pointRadius:3}
+    {label:'Recommended',data:[40,70,82,98,92,105,128,160,182,150,88,45],borderColor:'#2C83D3',borderDash:[5,5],tension:.4,fill:false,pointRadius:3}
   ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',padding:12}}},scales:{y:{beginAtZero:true,title:{display:true,text:'Personnel / Demand Index'}}}}});
 
   // Efficiency Radar
   new Chart(document.getElementById('effChart'),{type:'radar',data:{labels:['Response Time','Area Coverage','Utilisation','Patrol Compliance','Cost Efficiency','Positive Outcomes'],datasets:[
-    {label:'Current',data:[85,88,91,96,82,78],backgroundColor:'rgba(37,99,235,.12)',borderColor:'#2563EB',pointBackgroundColor:'#2563EB',pointRadius:3},
-    {label:'With Hotspot Analytics',data:[92,94,96,98,90,87],backgroundColor:'rgba(13,148,136,.12)',borderColor:'#0D9488',pointBackgroundColor:'#0D9488',pointRadius:3}
+    {label:'Current',data:[85,88,91,96,82,78],backgroundColor:'rgba(44,131,211,.12)',borderColor:'#2C83D3',pointBackgroundColor:'#2C83D3',pointRadius:3},
+    {label:'With Hotspot Analytics',data:[92,94,96,98,90,87],backgroundColor:'rgba(16,202,114,.12)',borderColor:'#10CA72',pointBackgroundColor:'#10CA72',pointRadius:3}
   ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',padding:12}}},scales:{r:{beginAtZero:true,max:100,ticks:{stepSize:20}}}}});
 }
 
@@ -1257,7 +1258,7 @@ function renderCompareRadar(){
   const sel=document.getElementById('compareForces');
   const selected=[...sel.selectedOptions].map(o=>o.value).slice(0,4);
   if(selected.length<2)return;
-  const colors=['#2563EB','#EF4444','#0D9488','#8B5CF6'];
+  const colors=['#2C83D3','#EF4444','#10CA72','#8876E4'];
   const datasets=selected.map((k,i)=>{
     const f=FORCE_MAP[k];if(!f)return null;
     const maxCR=Math.max(...FORCES.map(x=>x.crimeRate));
@@ -1289,7 +1290,7 @@ function renderForceTypeChart(){
   if(forceTypeChartInstance)forceTypeChartInstance.destroy();
   forceTypeChartInstance=new Chart(document.getElementById('forceTypeChart'),{type:'bar',data:{labels:['Urban','Mixed','Rural'],datasets:[
     {label:'Avg Severity Score',data:avgByType,backgroundColor:['#EF4444','#F97316','#22C55E'],borderRadius:6,yAxisID:'y'},
-    {label:'Avg Crime Rate/1k',data:crByType,type:'line',borderColor:'#2563EB',pointBackgroundColor:'#2563EB',tension:.4,yAxisID:'y1'}
+    {label:'Avg Crime Rate/1k',data:crByType,type:'line',borderColor:'#2C83D3',pointBackgroundColor:'#2C83D3',tension:.4,yAxisID:'y1'}
   ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',padding:12}}},scales:{y:{beginAtZero:true,position:'left',title:{display:true,text:'Severity Score'}},y1:{beginAtZero:true,position:'right',grid:{drawOnChartArea:false},title:{display:true,text:'Crime Rate / 1,000'}}}}});
 }
 document.getElementById('rankMetric').addEventListener('change',renderRankings);
