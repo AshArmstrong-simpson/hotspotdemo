@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simpson Associates | Hotspot Policing & Demand Forecasting</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+    --navy:#0B1120;--navy-2:#111B30;--navy-3:#192545;
+    --blue:#2563EB;--blue-d:#1D4ED8;--blue-l:#60A5FA;
+    --teal:#0D9488;--teal-l:#2DD4BF;
+    --purple:#8B5CF6;--red:#EF4444;--orange:#F97316;--amber:#EAB308;--green:#22C55E;
+    --g50:#F8FAFC;--g100:#F1F5F9;--g200:#E2E8F0;--g300:#CBD5E1;
+    --g400:#94A3B8;--g500:#64748B;--g600:#475569;--g700:#334155;--g800:#1E293B;--g900:#0F172A;
+    --radius:14px;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.06);
+    --shadow-lg:0 8px 30px rgba(0,0,0,.12);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',sans-serif;background:var(--g50);color:var(--g900);line-height:1.5;overflow-x:hidden}
+
+/* HEADER */
+header{background:var(--navy);padding:.75rem 2rem;position:fixed;width:100%;top:0;z-index:2000;border-bottom:1px solid rgba(255,255,255,.08)}
+.hdr{max-width:1440px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+.logo{display:flex;align-items:center;gap:.6rem;text-decoration:none}
+.logo-mark{width:36px;height:36px;background:linear-gradient(135deg,var(--blue),var(--teal));border-radius:8px;display:grid;place-items:center}
+.logo-mark svg{width:20px;height:20px}
+.logo-name{font-weight:700;font-size:1.15rem;color:#fff;letter-spacing:-.02em}
+.logo-name em{font-style:normal;color:var(--teal-l)}
+.top-nav{display:flex;gap:.25rem;background:rgba(255,255,255,.06);border-radius:10px;padding:3px}
+.top-tab{padding:.55rem 1.2rem;border:none;background:0;color:var(--g400);font-weight:500;font-size:.875rem;border-radius:8px;cursor:pointer;transition:.2s;font-family:inherit}
+.top-tab:hover{color:#fff;background:rgba(255,255,255,.06)}
+.top-tab.active{color:#fff;background:var(--blue)}
+.demo-tag{font-size:.7rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--teal-l);border:1px solid rgba(45,212,191,.3);padding:.35rem .85rem;border-radius:20px}
+
+/* PAGES */
+.page{display:none}.page.active{display:block}
+
+/* HERO */
+.hero{background:var(--navy);padding:7rem 2rem 3.5rem;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 70% 50%,rgba(37,99,235,.12) 0%,transparent 60%)}
+.hero-inner{max-width:1440px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;position:relative;z-index:1}
+.hero h1{font-size:3.2rem;font-weight:800;color:#fff;line-height:1.08;letter-spacing:-.03em;margin-bottom:1.2rem}
+.hero h1 span{background:linear-gradient(135deg,var(--blue-l),var(--teal-l));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:var(--g400);font-size:1.15rem;margin-bottom:2rem;max-width:520px}
+.hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+.h-stat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:1.1rem;text-align:center}
+.h-stat .val{font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:700;color:var(--teal-l)}
+.h-stat .lbl{color:var(--g400);font-size:.75rem;margin-top:.15rem}
+.hero-map-wrap{background:var(--navy-2);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:1rem;position:relative}
+.hero-map-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem;padding-bottom:.75rem;border-bottom:1px solid rgba(255,255,255,.08)}
+.hero-map-bar h3{color:#fff;font-size:.95rem;font-weight:600}
+.live{display:flex;align-items:center;gap:.4rem;color:var(--green);font-size:.78rem;font-weight:500}
+.live-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+.hero-map-box{height:300px;border-radius:10px;overflow:hidden}
+.hero-map-box .leaflet-container{height:100%;width:100%;border-radius:10px}
+
+/* MAIN */
+main{max-width:1440px;margin:0 auto;padding:2rem}
+.dash-nav{display:flex;gap:.35rem;background:#fff;padding:.35rem;border-radius:12px;box-shadow:var(--shadow);margin-bottom:1.75rem;overflow-x:auto}
+.d-tab{padding:.65rem 1.1rem;border:none;background:0;color:var(--g600);font-weight:500;font-size:.85rem;border-radius:9px;cursor:pointer;transition:.2s;white-space:nowrap;font-family:inherit}
+.d-tab:hover{background:var(--g100)}
+.d-tab.active{background:var(--blue);color:#fff}
+.panel{display:none}.panel.active{display:block;animation:fadeUp .35s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:1.25rem;margin-bottom:1.5rem}
+.kpi{background:#fff;border-radius:var(--radius);padding:1.3rem;box-shadow:var(--shadow);border-top:3px solid var(--g200);position:relative}
+.kpi.c-blue{border-top-color:var(--blue)}.kpi.c-teal{border-top-color:var(--teal)}.kpi.c-purple{border-top-color:var(--purple)}.kpi.c-amber{border-top-color:var(--amber)}.kpi.c-red{border-top-color:var(--red)}.kpi.c-green{border-top-color:var(--green)}
+.kpi-val{font-family:'JetBrains Mono',monospace;font-size:1.75rem;font-weight:700;letter-spacing:-.02em}
+.kpi-lbl{color:var(--g500);font-size:.82rem;margin-top:.15rem}
+.kpi-trend{font-size:.78rem;font-weight:500;margin-top:.55rem;display:flex;align-items:center;gap:.3rem}
+.kpi-trend.up{color:var(--red)}.kpi-trend.down{color:var(--green)}.kpi-trend.neutral{color:var(--g500)}
+
+/* GRID */
+.grid12{display:grid;grid-template-columns:repeat(12,1fr);gap:1.5rem}
+.card{background:#fff;border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow)}
+.c-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.25rem}
+.c-title{font-weight:600;font-size:1rem}.c-sub{color:var(--g500);font-size:.82rem;margin-top:.15rem}
+.badge{padding:.2rem .65rem;border-radius:16px;font-size:.72rem;font-weight:600}
+.b-info{background:rgba(37,99,235,.1);color:var(--blue)}.b-ok{background:rgba(34,197,94,.1);color:var(--green)}
+.b-warn{background:rgba(234,179,8,.1);color:var(--amber)}.b-err{background:rgba(239,68,68,.1);color:var(--red)}
+.span3{grid-column:span 3}.span4{grid-column:span 4}.span5{grid-column:span 5}.span6{grid-column:span 6}.span7{grid-column:span 7}.span8{grid-column:span 8}.span12{grid-column:span 12}
+.chart-box{height:280px;position:relative}
+
+/* FILTERS */
+.filters{display:flex;gap:.75rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center}
+.filters label{font-size:.85rem;color:var(--g600);font-weight:500}
+.fsel{padding:.5rem 2rem .5rem .7rem;border:1px solid var(--g300);border-radius:8px;font-size:.85rem;color:var(--g700);background:#fff;font-family:inherit;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .6rem center}
+.fsel:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+
+/* TOGGLE */
+.toggle-wrap{display:flex;align-items:center;gap:.5rem;margin-left:auto}
+.toggle-wrap label{font-size:.8rem;color:var(--g500);font-weight:500}
+.toggle{position:relative;width:44px;height:24px;cursor:pointer}
+.toggle input{opacity:0;width:0;height:0}
+.toggle .slider{position:absolute;inset:0;background:var(--g300);border-radius:12px;transition:.3s}
+.toggle .slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
+.toggle input:checked+.slider{background:var(--blue)}
+.toggle input:checked+.slider::before{transform:translateX(20px)}
+
+/* MAP */
+.map-wrap{height:480px;border-radius:12px;overflow:hidden;position:relative}
+.map-wrap .leaflet-container{height:100%;width:100%}
+.map-legend{position:absolute;bottom:1rem;left:1rem;background:#fff;padding:.85rem 1rem;border-radius:10px;box-shadow:var(--shadow-lg);z-index:800;font-size:.8rem}
+.map-legend h4{font-size:.7rem;font-weight:600;color:var(--g500);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.5rem}
+.leg-item{display:flex;align-items:center;gap:.45rem;margin-bottom:.35rem}
+.leg-dot{width:11px;height:11px;border-radius:50%}
+.leg-dot.crit{background:var(--red)}.leg-dot.high{background:var(--orange)}.leg-dot.med{background:var(--amber)}.leg-dot.low{background:var(--green)}
+
+/* HOTSPOT LIST */
+.hs-list{display:flex;flex-direction:column;gap:.6rem;max-height:440px;overflow-y:auto}
+.hs-item{display:flex;align-items:center;gap:.85rem;padding:.85rem;background:var(--g50);border-radius:12px;cursor:pointer;transition:.2s;border:1px solid transparent}
+.hs-item:hover{background:#fff;border-color:var(--g200);box-shadow:var(--shadow)}
+.hs-rank{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-weight:700;font-size:.82rem}
+.hs-item.crit .hs-rank{background:rgba(239,68,68,.1);color:var(--red)}
+.hs-item.high .hs-rank{background:rgba(249,115,22,.1);color:var(--orange)}
+.hs-item.med .hs-rank{background:rgba(234,179,8,.1);color:var(--amber)}
+.hs-item.low .hs-rank{background:rgba(34,197,94,.1);color:var(--green)}
+.hs-info{flex:1}.hs-name{font-weight:600;font-size:.85rem}.hs-meta{font-size:.75rem;color:var(--g500);margin-top:.1rem}
+.hs-score{text-align:right}
+.hs-score .num{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.1rem}
+.hs-item.crit .num{color:var(--red)}.hs-item.high .num{color:var(--orange)}.hs-item.med .num{color:var(--amber)}.hs-item.low .num{color:var(--green)}
+.hs-score .slbl{font-size:.62rem;color:var(--g500);text-transform:uppercase;letter-spacing:.04em}
+.hs-css{font-size:.68rem;color:var(--g400);font-family:'JetBrains Mono',monospace}
+
+/* FORECAST */
+.fc-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:.85rem;margin-top:1rem}
+.fc-day{text-align:center;padding:1rem .5rem;background:var(--g50);border-radius:12px;cursor:pointer;transition:.2s}
+.fc-day:hover{background:#fff;box-shadow:var(--shadow);transform:translateY(-2px)}
+.fc-day.today{background:var(--blue);color:#fff}
+.fc-day .dn{font-size:.7rem;font-weight:500;text-transform:uppercase;color:var(--g500);letter-spacing:.04em}
+.fc-day .dd{font-size:.78rem;color:var(--g600);margin:.15rem 0 .5rem}
+.fc-day.today .dn,.fc-day.today .dd{color:rgba(255,255,255,.75)}
+.fc-day .fv{font-family:'JetBrains Mono',monospace;font-size:1.3rem;font-weight:700}
+.fc-day.today .fv{color:#fff}
+.fc-day .fl{font-size:.65rem;color:var(--g500)}
+.fc-day.today .fl{color:rgba(255,255,255,.7)}
+.fc-day .ci{font-size:.6rem;color:var(--g400);margin-top:.2rem}
+.fc-day.today .ci{color:rgba(255,255,255,.55)}
+
+/* RESOURCES */
+.res-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.res-card{padding:1.2rem;background:var(--g50);border-radius:12px;text-align:center}
+.res-name{font-weight:600;font-size:.85rem;color:var(--g800);margin-bottom:.3rem}
+.res-val{font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:700;color:var(--blue)}
+.res-status{font-size:.75rem;color:var(--g500)}
+.koper-box{background:linear-gradient(135deg,rgba(37,99,235,.05),rgba(13,148,136,.05));border:1px solid rgba(37,99,235,.15);border-radius:12px;padding:1.5rem;margin-top:1.25rem}
+.koper-box h4{font-size:.95rem;font-weight:700;color:var(--navy);margin-bottom:.5rem}
+.koper-box p{font-size:.88rem;color:var(--g600);line-height:1.6}
+.koper-box .koper-highlight{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--blue);font-size:1.1rem}
+
+/* PEEL */
+.peel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+.peel{background:#fff;border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);border-top:3px solid var(--g200)}
+.peel.eff{border-top-color:var(--blue)}.peel.effi{border-top-color:var(--teal)}.peel.leg{border-top-color:var(--purple)}
+.peel-hdr{display:flex;align-items:center;gap:.6rem;margin-bottom:1.2rem}
+.peel-ico{width:36px;height:36px;border-radius:9px;display:grid;place-items:center}
+.peel.eff .peel-ico{background:rgba(37,99,235,.1)}.peel.effi .peel-ico{background:rgba(13,148,136,.1)}.peel.leg .peel-ico{background:rgba(139,92,246,.1)}
+.peel-ico svg{width:18px;height:18px}
+.peel-t{font-weight:600;font-size:1rem}
+.pm{display:flex;justify-content:space-between;align-items:center;padding:.65rem 0;border-bottom:1px solid var(--g100)}
+.pm:last-child{border-bottom:none}
+.pm-l{font-size:.85rem;color:var(--g600)}
+.pm-v{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:1rem}
+.peel.eff .pm-v{color:var(--blue)}.peel.effi .pm-v{color:var(--teal)}.peel.leg .pm-v{color:var(--purple)}
+
+/* FORCE COMPARISON */
+.compare-controls{display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:end}
+.compare-controls .grp{display:flex;flex-direction:column;gap:.3rem}
+.compare-controls .grp label{font-size:.78rem;color:var(--g500);font-weight:500}
+.rank-table{width:100%;border-collapse:separate;border-spacing:0;font-size:.85rem}
+.rank-table th{background:var(--g50);padding:.7rem .85rem;text-align:left;font-weight:600;color:var(--g700);font-size:.78rem;text-transform:uppercase;letter-spacing:.03em;border-bottom:2px solid var(--g200);position:sticky;top:0}
+.rank-table td{padding:.65rem .85rem;border-bottom:1px solid var(--g100);color:var(--g700)}
+.rank-table tr:hover td{background:rgba(37,99,235,.03)}
+.rank-table .rank-num{font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--blue);font-size:.9rem}
+.rank-table .force-name{font-weight:600;color:var(--g900)}
+.rank-table .metric-val{font-family:'JetBrains Mono',monospace;font-weight:600}
+.rank-table .bar-cell{position:relative;min-width:120px}
+.rank-bar{height:6px;border-radius:3px;background:var(--blue);transition:width .5s ease}
+.table-scroll{max-height:500px;overflow-y:auto;border-radius:10px;border:1px solid var(--g200)}
+
+/* INSIGHT PANEL */
+.insight-wrap{background:linear-gradient(135deg,var(--navy),var(--navy-3));border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow-lg)}
+.insight-wrap .c-title{color:#fff}.insight-wrap .c-sub{color:var(--g400)}
+.ins-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem}
+.ins{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:1.15rem}
+.ins-pri{display:inline-block;padding:.2rem .65rem;border-radius:16px;font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-bottom:.6rem}
+.ins-pri.crit{background:rgba(239,68,68,.25);color:#FCA5A5}.ins-pri.h{background:rgba(249,115,22,.25);color:#FDBA74}.ins-pri.m{background:rgba(234,179,8,.2);color:#FDE68A}.ins-pri.l{background:rgba(34,197,94,.2);color:#86EFAC}
+.ins-txt{color:var(--g200);font-size:.88rem;line-height:1.55}
+.ins-txt strong{color:#fff}
+.ins-meta{margin-top:.7rem;font-size:.75rem;color:var(--g400)}
+.ins-source{display:inline-block;padding:.15rem .5rem;border-radius:8px;font-size:.65rem;background:rgba(255,255,255,.06);color:var(--g400);margin-left:.3rem}
+
+/* SOLUTIONS */
+.pg-hero{background:var(--navy);padding:7rem 2rem 3rem;text-align:center}
+.pg-hero h1{font-size:2.8rem;font-weight:800;color:#fff;letter-spacing:-.03em;margin-bottom:.8rem}
+.pg-hero p{color:var(--g400);font-size:1.1rem;max-width:640px;margin:0 auto}
+.sol-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;max-width:1440px;margin:2.5rem auto;padding:0 2rem}
+.sol-card{background:#fff;border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow);border:1px solid var(--g200);transition:.25s}
+.sol-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+.sol-ico{width:52px;height:52px;border-radius:12px;display:grid;place-items:center;margin-bottom:1.2rem}
+.sol-ico svg{width:26px;height:26px}
+.sol-card h3{font-size:1.05rem;font-weight:700;margin-bottom:.5rem}
+.sol-card p{color:var(--g500);font-size:.88rem;line-height:1.55}
+.sol-card .sol-stats{display:flex;gap:1rem;margin-top:1rem;padding-top:.85rem;border-top:1px solid var(--g100)}
+.sol-card .sol-stat{font-size:.78rem;color:var(--g500)}.sol-card .sol-stat strong{color:var(--blue);font-family:'JetBrains Mono',monospace}
+
+/* CASE STUDIES */
+.cs-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.5rem;max-width:1440px;margin:2.5rem auto;padding:0 2rem}
+.cs-card{background:#fff;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--g200);transition:.25s}
+.cs-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.cs-top{height:160px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.cs-top .cs-icon{width:60px;height:60px;background:rgba(255,255,255,.15);border-radius:16px;display:grid;place-items:center}
+.cs-top .cs-icon svg{width:30px;height:30px;stroke:#fff}
+.cs-body{padding:1.5rem}
+.cs-card h3{font-size:1.05rem;font-weight:700;margin-bottom:.5rem}
+.cs-card p{color:var(--g500);font-size:.88rem;line-height:1.55}
+.cs-metrics{display:flex;gap:1.5rem;margin-top:1rem;padding-top:.85rem;border-top:1px solid var(--g100)}
+.cs-metric{font-size:.78rem;color:var(--g500)}.cs-metric strong{display:block;font-size:1.1rem;color:var(--blue);font-family:'JetBrains Mono',monospace}
+.cs-tag{display:inline-block;padding:.2rem .6rem;border-radius:12px;font-size:.72rem;font-weight:600;margin-top:.75rem}
+
+/* CONTACT */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;max-width:1440px;margin:2.5rem auto;padding:0 2rem}
+.c-form{background:#fff;border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow)}
+.c-form label{display:block;font-size:.85rem;font-weight:500;color:var(--g700);margin-bottom:.35rem}
+.c-form input,.c-form textarea,.c-form select{width:100%;padding:.65rem .85rem;border:1px solid var(--g300);border-radius:8px;font-family:inherit;font-size:.9rem;margin-bottom:1rem;transition:.2s}
+.c-form input:focus,.c-form textarea:focus,.c-form select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.c-form textarea{height:110px;resize:vertical}
+.c-btn{background:var(--blue);color:#fff;border:none;padding:.75rem 2rem;border-radius:10px;font-size:.95rem;font-weight:600;cursor:pointer;transition:.2s;font-family:inherit}
+.c-btn:hover{background:var(--blue-d)}
+.c-info{display:flex;flex-direction:column;gap:1.25rem}
+.c-info-card{background:#fff;border-radius:var(--radius);padding:1.35rem;box-shadow:var(--shadow)}
+.c-info-card h3{font-size:.95rem;font-weight:600;margin-bottom:.4rem}
+.c-info-card p{color:var(--g500);font-size:.88rem;line-height:1.55}
+
+/* FOOTER */
+footer{background:var(--navy);padding:2rem;text-align:center;margin-top:3rem;border-top:1px solid rgba(255,255,255,.06)}
+footer p{color:var(--g400);font-size:.85rem}
+footer a{color:var(--teal-l);text-decoration:none}
+
+/* NATIONAL SUMMARY BAR */
+.national-bar{display:grid;grid-template-columns:repeat(6,1fr);gap:.75rem;background:var(--navy-2);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:1rem;margin-bottom:1.5rem}
+.nb-item{text-align:center;padding:.5rem}
+.nb-item .nb-val{font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:var(--teal-l)}
+.nb-item .nb-lbl{font-size:.68rem;color:var(--g400);margin-top:.15rem}
+
+/* RESPONSIVE */
+@media(max-width:1100px){
+    .hero-inner{grid-template-columns:1fr}
+    .kpis{grid-template-columns:repeat(3,1fr)}
+    .span3,.span4,.span5,.span6,.span7,.span8{grid-column:span 12}
+    .peel-grid,.ins-grid,.sol-grid{grid-template-columns:1fr}
+    .cs-grid,.contact-grid{grid-template-columns:1fr}
+    .national-bar{grid-template-columns:repeat(3,1fr)}
+    .hero-stats{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:700px){
+    .hero h1{font-size:2rem}
+    .kpis{grid-template-columns:1fr}
+    .fc-grid{grid-template-columns:repeat(4,1fr)}
+    .res-grid{grid-template-columns:1fr}
+    .hero-stats{grid-template-columns:1fr}
+    .top-nav{display:none}
+    .national-bar{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+<div class="hdr">
+    <a href="#" class="logo" onclick="showPage('dashboard',this);return false">
+        <div class="logo-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+        <div class="logo-name">Simpson <em>Associates</em></div>
+    </a>
+    <div class="top-nav">
+        <button class="top-tab active" onclick="showPage('dashboard',this)">Dashboard</button>
+        <button class="top-tab" onclick="showPage('solutions',this)">Solutions</button>
+        <button class="top-tab" onclick="showPage('casestudies',this)">Case Studies</button>
+        <button class="top-tab" onclick="showPage('contact',this)">Contact</button>
+    </div>
+    <div class="demo-tag">Demo Environment</div>
+</div>
+</header>
+
+<!-- ══════════ DASHBOARD PAGE ══════════ -->
+<div class="page active" id="pg-dashboard">
+
+<section class="hero">
+<div class="hero-inner">
+    <div class="hero-text">
+        <h1>Hotspot Policing &amp; <span>Demand Forecasting</span></h1>
+        <p>AI-powered crime analytics for evidence-led deployment, resource optimisation, and safer communities across all 43 police forces in England &amp; Wales.</p>
+        <div class="hero-stats">
+            <div class="h-stat"><div class="val">43</div><div class="lbl">Forces Covered</div></div>
+            <div class="h-stat"><div class="val">17%</div><div class="lbl">Avg Crime Reduction</div></div>
+            <div class="h-stat"><div class="val">76.4%</div><div class="lbl">Prediction Accuracy</div></div>
+            <div class="h-stat"><div class="val">2.3x</div><div class="lbl">ROI on Deployment</div></div>
+        </div>
+    </div>
+    <div class="hero-map-wrap">
+        <div class="hero-map-bar">
+            <h3>National Crime Hotspot Overview</h3>
+            <div class="live"><div class="live-dot"></div> Synthetic demo data</div>
+        </div>
+        <div class="hero-map-box"><div id="heroMap"></div></div>
+    </div>
+</div>
+</section>
+
+<main>
+    <div class="dash-nav">
+        <button class="d-tab active" data-panel="overview">Overview</button>
+        <button class="d-tab" data-panel="hotspots">Hotspot Analysis</button>
+        <button class="d-tab" data-panel="forecast">Demand Forecast</button>
+        <button class="d-tab" data-panel="resources">Resource Allocation</button>
+        <button class="d-tab" data-panel="comparison">Force Comparison</button>
+        <button class="d-tab" data-panel="peel">PEEL Alignment</button>
+        <button class="d-tab" data-panel="insights">AI Insights</button>
+    </div>
+
+    <!-- OVERVIEW -->
+    <div class="panel active" id="overview">
+        <div class="kpis" id="kpi-section"></div>
+        <div class="grid12">
+            <div class="card span7">
+                <div class="c-hdr">
+                    <div><div class="c-title">Crime Trends (12 Months)</div><div class="c-sub">Monthly incident counts by Home Office category</div></div>
+                    <div style="display:flex;gap:.5rem;align-items:center">
+                        <div class="toggle-wrap"><label>Severity weighted</label><label class="toggle"><input type="checkbox" id="cssTrendToggle"><span class="slider"></span></label></div>
+                        <span class="badge b-info">Synthetic</span>
+                    </div>
+                </div>
+                <div class="chart-box"><canvas id="trendChart"></canvas></div>
+            </div>
+            <div class="card span5">
+                <div class="c-hdr"><div><div class="c-title">Crime Mix by Category</div><div class="c-sub">Home Office Counting Rules classification</div></div></div>
+                <div class="chart-box"><canvas id="crimeMixChart"></canvas></div>
+            </div>
+            <div class="card span5">
+                <div class="c-hdr"><div><div class="c-title">Hotspot Risk Distribution</div><div class="c-sub">Current risk levels across active hotspots</div></div></div>
+                <div class="chart-box"><canvas id="riskChart"></canvas></div>
+            </div>
+            <div class="card span7">
+                <div class="c-hdr"><div><div class="c-title">Crime Severity Score Trend</div><div class="c-sub">ONS Crime Severity Score weighted by sentencing data</div></div></div>
+                <div class="chart-box"><canvas id="cssTrendChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HOTSPOT ANALYSIS -->
+    <div class="panel" id="hotspots">
+        <div class="filters">
+            <label>Force:</label>
+            <select class="fsel" id="filterForce"></select>
+            <label>Crime Type:</label>
+            <select class="fsel" id="filterCrime">
+                <option value="all">All Crime Types</option>
+                <option value="violence">Violence Against the Person</option>
+                <option value="sexual">Sexual Offences</option>
+                <option value="robbery">Robbery</option>
+                <option value="burglary">Burglary</option>
+                <option value="theft">Theft Offences</option>
+                <option value="damage">Criminal Damage &amp; Arson</option>
+                <option value="drugs">Drug Offences</option>
+                <option value="weapons">Possession of Weapons</option>
+                <option value="public-order">Public Order</option>
+                <option value="fraud">Fraud</option>
+            </select>
+            <label>Period:</label>
+            <select class="fsel" id="filterPeriod">
+                <option value="7">Last 7 Days</option>
+                <option value="28">Last 28 Days</option>
+                <option value="90">Last 90 Days</option>
+            </select>
+            <div class="toggle-wrap"><label>Severity view</label><label class="toggle"><input type="checkbox" id="cssMapToggle"><span class="slider"></span></label></div>
+        </div>
+        <div class="grid12">
+            <div class="card span8">
+                <div class="c-hdr"><div><div class="c-title" id="mapTitle">Interactive Hotspot Map</div><div class="c-sub" id="mapSub">Crime concentration with geofenced hexagon grid</div></div><span class="badge b-ok">Live</span></div>
+                <div class="map-wrap" id="mainMapWrap">
+                    <div id="mainMap" style="height:100%;width:100%"></div>
+                    <div class="map-legend">
+                        <h4>Risk Level</h4>
+                        <div class="leg-item"><div class="leg-dot crit"></div>Critical (80-100)</div>
+                        <div class="leg-item"><div class="leg-dot high"></div>High (60-79)</div>
+                        <div class="leg-item"><div class="leg-dot med"></div>Medium (40-59)</div>
+                        <div class="leg-item"><div class="leg-dot low"></div>Low (0-39)</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card span4">
+                <div class="c-hdr"><div><div class="c-title">Priority Hotspots</div><div class="c-sub" id="hsListSub">Ranked by composite risk score</div></div></div>
+                <div class="hs-list" id="hsList"></div>
+            </div>
+            <div class="card span12">
+                <div class="c-hdr"><div><div class="c-title">Temporal Crime Patterns</div><div class="c-sub">Identifying peak hours for targeted patrol deployment (Koper Curve optimised)</div></div></div>
+                <div class="chart-box" style="height:200px"><canvas id="temporalChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DEMAND FORECAST -->
+    <div class="panel" id="forecast">
+        <div class="filters">
+            <label>Force:</label>
+            <select class="fsel" id="forecastForce"></select>
+        </div>
+        <div class="grid12">
+            <div class="card span12">
+                <div class="c-hdr"><div><div class="c-title">7-Day Demand Forecast</div><div class="c-sub">ML-predicted incident volumes with confidence intervals</div></div><span class="badge b-info" id="fcAccBadge">76.4% Accuracy</span></div>
+                <div class="fc-grid" id="fcGrid"></div>
+            </div>
+            <div class="card span6"><div class="c-hdr"><div><div class="c-title">Demand Trend &amp; Confidence Band</div><div class="c-sub">Historical actuals vs predicted with 95% CI</div></div></div><div class="chart-box"><canvas id="forecastChart"></canvas></div></div>
+            <div class="card span6"><div class="c-hdr"><div><div class="c-title">Crime Type Predictions</div><div class="c-sub">Next 7-day forecast by HOCR category</div></div></div><div class="chart-box"><canvas id="categoryChart"></canvas></div></div>
+            <div class="card span12">
+                <div class="c-hdr"><div><div class="c-title">Seasonal &amp; Event Demand Factors</div><div class="c-sub">Multiplicative adjustment factors affecting forecast</div></div></div>
+                <div class="chart-box" style="height:200px"><canvas id="seasonalChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESOURCE ALLOCATION -->
+    <div class="panel" id="resources">
+        <div class="grid12">
+            <div class="card span12">
+                <div class="c-hdr"><div><div class="c-title">AI-Optimised Resource Deployment</div><div class="c-sub">Recommendations based on predicted demand and Koper Curve evidence</div></div></div>
+                <div class="res-grid" id="resGrid"></div>
+                <div class="koper-box">
+                    <h4>Evidence-Based Patrol Dosage (Koper Curve)</h4>
+                    <p>Research by Koper (1995) and validated by the College of Policing shows that the optimal patrol duration at each hotspot is <span class="koper-highlight">10-16 minutes</span>. Beyond this, deterrence effects plateau. Our model recommends <span class="koper-highlight">4 visits per shift</span> at critical hotspots, with unpredictable timing to maximise the residual deterrence effect. Current evidence from the Home Office Hot Spot Response Programme shows this approach delivers a <span class="koper-highlight">14-17% crime reduction</span> while optimising officer time across more locations.</p>
+                </div>
+            </div>
+            <div class="card span6"><div class="c-hdr"><div><div class="c-title">Shift Coverage vs Demand</div><div class="c-sub">Predicted demand overlaid with staffing levels</div></div></div><div class="chart-box"><canvas id="shiftChart"></canvas></div></div>
+            <div class="card span6"><div class="c-hdr"><div><div class="c-title">Deployment Efficiency Radar</div><div class="c-sub">Current vs target across key metrics</div></div></div><div class="chart-box"><canvas id="effChart"></canvas></div></div>
+        </div>
+    </div>
+
+    <!-- FORCE COMPARISON -->
+    <div class="panel" id="comparison">
+        <div class="compare-controls">
+            <div class="grp"><label>Rank forces by:</label>
+                <select class="fsel" id="rankMetric">
+                    <option value="crimeRate">Crime Rate per 1,000</option>
+                    <option value="severityScore">Crime Severity Score</option>
+                    <option value="officerRatio">Officer-to-Population Ratio</option>
+                    <option value="predAccuracy">Prediction Accuracy</option>
+                    <option value="responseTime">Response Time (mins)</option>
+                    <option value="crimeReduction">Crime Reduction %</option>
+                    <option value="publicConfidence">Public Confidence %</option>
+                    <option value="deprivation">Deprivation Index</option>
+                </select>
+            </div>
+            <div class="grp"><label>Region filter:</label>
+                <select class="fsel" id="regionFilter">
+                    <option value="all">All Regions</option>
+                    <option value="North East">North East</option>
+                    <option value="North West">North West</option>
+                    <option value="Yorkshire and the Humber">Yorkshire &amp; Humber</option>
+                    <option value="East Midlands">East Midlands</option>
+                    <option value="West Midlands">West Midlands</option>
+                    <option value="Eastern">Eastern</option>
+                    <option value="South East">South East</option>
+                    <option value="South West">South West</option>
+                    <option value="London">London</option>
+                    <option value="Wales">Wales</option>
+                </select>
+            </div>
+            <div class="grp"><label>Compare (select 2-4):</label>
+                <select class="fsel" id="compareForces" multiple size="4" style="height:80px"></select>
+            </div>
+        </div>
+        <div class="grid12">
+            <div class="card span7">
+                <div class="c-hdr"><div><div class="c-title">Force Rankings</div><div class="c-sub" id="rankSub">All 43 forces ranked by crime rate per 1,000</div></div></div>
+                <div class="table-scroll" id="rankTableWrap"></div>
+            </div>
+            <div class="card span5">
+                <div class="c-hdr"><div><div class="c-title">Comparison Radar</div><div class="c-sub">Multi-force performance overlay</div></div></div>
+                <div class="chart-box" style="height:320px"><canvas id="compareRadar"></canvas></div>
+            </div>
+            <div class="card span6">
+                <div class="c-hdr"><div><div class="c-title">Deprivation vs Crime Rate</div><div class="c-sub">IMD correlation across all forces</div></div></div>
+                <div class="chart-box"><canvas id="deprivationChart"></canvas></div>
+            </div>
+            <div class="card span6">
+                <div class="c-hdr"><div><div class="c-title">Crime Severity by Force Type</div><div class="c-sub">Urban vs Mixed vs Rural force comparison</div></div></div>
+                <div class="chart-box"><canvas id="forceTypeChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PEEL -->
+    <div class="panel" id="peel">
+        <div class="filters">
+            <label>Force:</label>
+            <select class="fsel" id="peelForce"></select>
+        </div>
+        <div class="peel-grid" id="peelGrid">
+            <div class="peel eff">
+                <div class="peel-hdr"><div class="peel-ico"><svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="peel-t">Effectiveness</div></div>
+                <div id="peelEff"></div>
+            </div>
+            <div class="peel effi">
+                <div class="peel-hdr"><div class="peel-ico"><svg viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="peel-t">Efficiency</div></div>
+                <div id="peelEffi"></div>
+            </div>
+            <div class="peel leg">
+                <div class="peel-hdr"><div class="peel-ico"><svg viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div><div class="peel-t">Legitimacy</div></div>
+                <div id="peelLeg"></div>
+            </div>
+        </div>
+        <div class="grid12" style="margin-top:1.5rem">
+            <div class="card span12">
+                <div class="c-hdr"><div><div class="c-title">HMICFRS Inspection Alignment</div><div class="c-sub">How hotspot analytics supports each PEEL pillar</div></div></div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem" id="peelAlignment"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI INSIGHTS -->
+    <div class="panel" id="insights">
+        <div class="filters">
+            <label>Force:</label>
+            <select class="fsel" id="insightForce"></select>
+            <label>Priority:</label>
+            <select class="fsel" id="insightPriority">
+                <option value="all">All Priorities</option>
+                <option value="crit">Critical</option>
+                <option value="h">High</option>
+                <option value="m">Medium</option>
+                <option value="l">Low</option>
+            </select>
+        </div>
+        <div class="insight-wrap">
+            <div class="c-hdr"><div><div class="c-title">AI-Generated Insights &amp; Recommendations</div><div class="c-sub">Automated pattern detection using historical trends, event data, and cross-force analysis</div></div></div>
+            <div class="ins-grid" id="insightsGrid"></div>
+        </div>
+    </div>
+</main>
+</div>
+
+<!-- ══════════ SOLUTIONS PAGE ══════════ -->
+<div class="page" id="pg-solutions">
+<div class="pg-hero"><h1>Our Policing Solutions</h1><p>Purpose-built analytics and AI solutions for UK police forces, designed to accelerate data maturity and deliver measurable operational impact.</p></div>
+<div class="sol-grid">
+    <div class="sol-card"><div class="sol-ico" style="background:rgba(37,99,235,.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div><h3>Hotspot Policing Analytics</h3><p>Geospatial crime analysis with hexagonal grid mapping, temporal pattern detection, and risk-scored hotspot prioritisation for all 43 forces. Aligned to the Home Office Hot Spot Response Programme.</p><div class="sol-stats"><span class="sol-stat"><strong>17%</strong> avg crime reduction</span><span class="sol-stat"><strong>14%</strong> violence reduction</span></div></div>
+    <div class="sol-card"><div class="sol-ico" style="background:rgba(13,148,136,.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><h3>Demand Forecasting</h3><p>ML-driven predictions of incident volumes by crime type, location, and time period. Incorporates ONS Crime Severity Scores, seasonality, events, weather, and NTE patterns.</p><div class="sol-stats"><span class="sol-stat"><strong>76%+</strong> prediction accuracy</span><span class="sol-stat"><strong>7-day</strong> forecast horizon</span></div></div>
+    <div class="sol-card"><div class="sol-ico" style="background:rgba(139,92,246,.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/></svg></div><h3>Resource Allocation Engine</h3><p>AI-optimised deployment using Koper Curve evidence for patrol dosage. Matches officers, PCSOs, and specialist units to predicted demand by shift and risk level.</p><div class="sol-stats"><span class="sol-stat"><strong>94%</strong> utilisation rate</span><span class="sol-stat"><strong>15 min</strong> optimal patrol</span></div></div>
+    <div class="sol-card"><div class="sol-ico" style="background:rgba(234,179,8,.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div><h3>Data Analytics Accelerator</h3><p>Pre-configured Azure analytics platform for policing. Ingest crime data from data.police.uk, census, deprivation indices, and weather data for integrated operational intelligence.</p><div class="sol-stats"><span class="sol-stat"><strong>12+</strong> data sources</span><span class="sol-stat"><strong>33k</strong> LSOAs mapped</span></div></div>
+    <div class="sol-card"><div class="sol-ico" style="background:rgba(239,68,68,.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div><h3>RedactXpert</h3><p>AI-powered auto-redaction using Microsoft Cognitive Services. Automatically detects and redacts PII from documents, reducing the 770,000 hours/year forces spend on manual redaction.</p><div class="sol-stats"><span class="sol-stat"><strong>50%</strong> time savings</span><span class="sol-stat"><strong>99.2%</strong> PII detection</span></div></div>
+    <div class="sol-card"><div class="sol-ico" style="background:rgba(34,197,94,.1)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><h3>PEEL Performance Framework</h3><p>Analytics aligned to HMICFRS inspection criteria. Track effectiveness, efficiency, and legitimacy with auditable metrics. Supports the College of Policing's problem-solving approach to performance.</p><div class="sol-stats"><span class="sol-stat"><strong>3</strong> PEEL pillars</span><span class="sol-stat"><strong>12</strong> KPI categories</span></div></div>
+</div>
+</div>
+
+<!-- ══════════ CASE STUDIES PAGE ══════════ -->
+<div class="page" id="pg-casestudies">
+<div class="pg-hero"><h1>Case Studies</h1><p>See how UK police forces are transforming their operations with Simpson Associates' data analytics and AI solutions.</p></div>
+<div class="cs-grid">
+    <div class="cs-card"><div class="cs-top" style="background:linear-gradient(135deg,var(--blue),var(--teal))"><div class="cs-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div></div><div class="cs-body"><h3>Derbyshire Constabulary: Data Analytics Transformation</h3><p>Built a unified data platform enabling self-sufficient analytics capability. Delivered knowledge transfer ensuring force ownership of the solution and ongoing data maturity improvement.</p><div class="cs-metrics"><div class="cs-metric"><strong>40%</strong> faster reporting</div><div class="cs-metric"><strong>12</strong> data sources unified</div></div><span class="cs-tag badge b-info">Data Platform</span></div></div>
+    <div class="cs-card"><div class="cs-top" style="background:linear-gradient(135deg,var(--purple),var(--blue))"><div class="cs-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div></div><div class="cs-body"><h3>South Wales &amp; Gwent: Joint Data Analytics Programme</h3><p>Delivery partner for the JDAP initiative, revolutionising intelligence-led policing, resource allocation, and public safety through integrated data-driven insights across both forces.</p><div class="cs-metrics"><div class="cs-metric"><strong>2</strong> forces integrated</div><div class="cs-metric"><strong>23%</strong> efficiency gain</div></div><span class="cs-tag badge b-ok">Intelligence Led</span></div></div>
+    <div class="cs-card"><div class="cs-top" style="background:linear-gradient(135deg,var(--red),var(--orange))"><div class="cs-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div></div><div class="cs-body"><h3>Cleveland Police: AI-Powered Redaction</h3><p>Deployed RedactXpert achieving 50% reduction in redaction processing time. AI auto-detection of PII across thousands of documents, freeing investigator hours for frontline work.</p><div class="cs-metrics"><div class="cs-metric"><strong>50%</strong> time reduction</div><div class="cs-metric"><strong>5k+</strong> docs processed</div></div><span class="cs-tag badge b-err">AI Redaction</span></div></div>
+    <div class="cs-card"><div class="cs-top" style="background:linear-gradient(135deg,var(--teal),var(--green))"><div class="cs-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div></div><div class="cs-body"><h3>TOEX: National Capabilities Environment</h3><p>Key delivery partner for the Tackling Organised Exploitation programme, now approved for nationwide funding by the Home Office, making investigative tools available to all 43 forces.</p><div class="cs-metrics"><div class="cs-metric"><strong>43</strong> forces access</div><div class="cs-metric"><strong>National</strong> rollout</div></div><span class="cs-tag badge b-warn">National Programme</span></div></div>
+</div>
+</div>
+
+<!-- ══════════ CONTACT PAGE ══════════ -->
+<div class="page" id="pg-contact">
+<div class="pg-hero"><h1>Get In Touch</h1><p>Discover how we can transform your force's data into actionable intelligence. Book a demo or speak to our policing team.</p></div>
+<div class="contact-grid">
+    <div class="c-form">
+        <h3 style="margin-bottom:1.2rem;font-size:1.15rem">Book a Demo</h3>
+        <label>Name</label><input type="text" placeholder="Your name">
+        <label>Email</label><input type="email" placeholder="your.email@force.police.uk">
+        <label>Force / Organisation</label><select id="contactForce"></select>
+        <label>Area of Interest</label>
+        <select>
+            <option>Hotspot Policing Analytics</option>
+            <option>Demand Forecasting</option>
+            <option>Resource Allocation</option>
+            <option>RedactXpert</option>
+            <option>Data Platform / Accelerator</option>
+            <option>Full Suite Demo</option>
+        </select>
+        <label>Message</label><textarea placeholder="Tell us about your challenges or what you'd like to see in a demo..."></textarea>
+        <button class="c-btn" onclick="alert('Thank you! Our policing team will be in touch within 24 hours.')">Request Demo</button>
+    </div>
+    <div class="c-info">
+        <div class="c-info-card"><h3>York Office</h3><p>Suite 3, 20 George Hudson Street, York YO1 6WR</p></div>
+        <div class="c-info-card"><h3>Sheffield Office</h3><p>3 Concourse Way, Sheffield City Centre, Sheffield S1 2BJ</p></div>
+        <div class="c-info-card"><h3>Phone</h3><p>+44 (0) 1904 234 510</p></div>
+        <div class="c-info-card"><h3>Website</h3><p><a href="https://www.simpson-associates.co.uk" target="_blank" style="color:var(--blue)">www.simpson-associates.co.uk</a></p></div>
+        <div class="c-info-card"><h3>Accreditations</h3><p>Microsoft Partner of the Year 2024 &middot; ISO 27001 &middot; ISO 9001 &middot; Cyber Essentials Plus &middot; Databricks Partner &middot; Police Industry Charter</p></div>
+    </div>
+</div>
+</div>
+
+<footer><p><strong>Simpson Associates</strong> — Data Transformation Partner to UK Police Forces<br>Demo Environment — Synthetic Data Only | Built on Azure AI + Microsoft Fabric | <a href="https://www.simpson-associates.co.uk">www.simpson-associates.co.uk</a></p></footer>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   FORCE DATA PLACEHOLDER - Will be populated in Stage 2
+   ═══════════════════════════════════════════════════════ */
+const CSS_WEIGHTS={violence:5.1,sexual:9.0,robbery:5.5,burglary:2.5,theft:1.3,damage:1.1,drugs:1.0,weapons:4.8,'public-order':0.9,misc:1.2,fraud:0.7,cyber:0.5};
+const CRIME_LABELS={violence:'Violence Against the Person',sexual:'Sexual Offences',robbery:'Robbery',burglary:'Burglary',theft:'Theft Offences',damage:'Criminal Damage & Arson',drugs:'Drug Offences',weapons:'Possession of Weapons','public-order':'Public Order',misc:'Misc Crimes Against Society',fraud:'Fraud',cyber:'Computer Misuse'};
+const REGIONS=['North East','North West','Yorkshire and the Humber','East Midlands','West Midlands','Eastern','South East','South West','London','Wales'];
+
+function mkForce(k,n,reg,typ,lat,lng,z,pop,off,area,cr,dep,hs,tmpl){
+  const crimeMix=typ==='urban'?{violence:23,sexual:3.5,robbery:5.2,burglary:9,theft:26,damage:10,drugs:6,weapons:2.5,'public-order':8.5,misc:2.5,fraud:2.8,cyber:0.5}:typ==='rural'?{violence:18,sexual:2.8,robbery:1.5,burglary:12,theft:22,damage:14,drugs:4,weapons:1,'public-order':7,misc:3.5,fraud:12,cyber:1.7}:{violence:20,sexual:3.2,robbery:3,burglary:11,theft:24,damage:12,drugs:5,weapons:1.5,'public-order':8,misc:3,fraud:7,cyber:1.3};
+  const baseInc=Math.round(pop*cr/365000);
+  const acc=+(72+Math.random()*10).toFixed(1);
+  const resp=typ==='urban'?+(6+Math.random()*4).toFixed(1):typ==='rural'?+(9+Math.random()*6).toFixed(1):+(7+Math.random()*5).toFixed(1);
+  const reduc=-(10+Math.random()*15).toFixed(1);
+  const conf=+(60+Math.random()*25).toFixed(0);
+  const patrol=+(88+Math.random()*10).toFixed(0);
+  const vsat=+(72+Math.random()*16).toFixed(0);
+  const sevBase=Math.round(baseInc*2.8);
+  const fc7=[];const fcu=[];const fcl=[];const fcc=[];
+  const dayNames=['Thu','Fri','Sat','Sun','Mon','Tue','Wed'];
+  const dayMult=[1,1.33,1.52,1.09,0.84,0.82,0.89];
+  for(let i=0;i<7;i++){const v=Math.round(baseInc*dayMult[i]*(0.92+Math.random()*0.16));const ci=Math.round(v*0.12);fc7.push(v);fcu.push(v+ci);fcl.push(v-ci);fcc.push(+(0.7+Math.random()*0.12).toFixed(2));}
+  if(!tmpl)tmpl=[80,40,25,30,55,70,85,78,95,115,150,170];
+  const scaledTmp=tmpl.map(v=>Math.round(v*baseInc/180));
+  return{key:k,name:n,region:reg,type:typ,center:[lat,lng],zoom:z,population:pop,officers:off,areaSqKm:area,crimeRate:cr,deprivationRank:dep,severityScore:sevBase,hotspots:hs,temporal:scaledTmp,kpis:{incidents:baseInc.toLocaleString(),activeHotspots:hs.length,officersDeployed:Math.round(off*0.18),predAccuracy:acc,responseTime:resp,crimeReduction:reduc,publicConfidence:conf,patrolCompliance:patrol,victimSatisfaction:vsat},crimeMix,forecast:{days:dayNames,values:fc7,upper:fcu,lower:fcl,confidence:fcc}};
+}
+
+const FORCES=[
+// ── NORTH EAST ──
+mkForce('cleveland','Cleveland Police','North East','urban',54.57,-1.23,11,570000,1250,597,98,6,[
+  {name:'Middlesbrough Centre',lat:54.5742,lng:-1.2350,risk:91,level:'crit',types:['violence','public-order'],context:'NTE & town centre',css:345,deprivation:1},
+  {name:'Stockton High Street',lat:54.5681,lng:-1.3138,risk:78,level:'high',types:['theft','violence'],context:'Retail & NTE',css:198,deprivation:2},
+  {name:'Hartlepool Marina',lat:54.6920,lng:-1.2080,risk:64,level:'high',types:['damage','public-order'],context:'Weekend evenings',css:142,deprivation:2},
+  {name:'Redcar Town Centre',lat:54.6175,lng:-1.0685,risk:52,level:'med',types:['theft','drugs'],context:'Daytime retail',css:98,deprivation:3},
+  {name:'North Ormesby',lat:54.5650,lng:-1.2100,risk:85,level:'crit',types:['drugs','violence','weapons'],context:'Residential deprivation',css:312,deprivation:1}
+]),
+mkForce('durham','Durham Constabulary','North East','mixed',54.78,-1.58,10,640000,1100,2722,72,18,[
+  {name:'Durham City Centre',lat:54.7753,lng:-1.5849,risk:68,level:'high',types:['theft','violence'],context:'Student NTE area',css:165,deprivation:4},
+  {name:'Darlington Town Centre',lat:54.5235,lng:-1.5528,risk:72,level:'high',types:['violence','public-order'],context:'NTE strip',css:188,deprivation:3},
+  {name:'Bishop Auckland',lat:54.6593,lng:-1.6787,risk:58,level:'med',types:['damage','drugs'],context:'Market town centre',css:112,deprivation:2},
+  {name:'Newton Aycliffe',lat:54.6192,lng:-1.5768,risk:45,level:'med',types:['burglary','damage'],context:'Residential estate',css:78,deprivation:3},
+  {name:'Peterlee Town Centre',lat:54.7600,lng:-1.3350,risk:62,level:'high',types:['violence','theft'],context:'Town centre retail',css:148,deprivation:1}
+]),
+mkForce('northumbria','Northumbria Police','North East','urban',55.00,-1.60,10,1470000,3200,5475,92,8,[
+  {name:'Newcastle Bigg Market',lat:54.9720,lng:-1.6150,risk:93,level:'crit',types:['violence','public-order'],context:'NTE hotspot',css:398,deprivation:2},
+  {name:'Sunderland City Centre',lat:54.9069,lng:-1.3838,risk:82,level:'crit',types:['violence','theft'],context:'Town centre & NTE',css:278,deprivation:1},
+  {name:'Gateshead Metro Centre',lat:54.9580,lng:-1.6650,risk:65,level:'high',types:['theft','burglary'],context:'Retail park',css:132,deprivation:3},
+  {name:'South Shields',lat:54.9985,lng:-1.4320,risk:58,level:'med',types:['damage','public-order'],context:'Seafront weekends',css:108,deprivation:2},
+  {name:'Newcastle Central Station',lat:54.9685,lng:-1.6178,risk:71,level:'high',types:['theft','robbery'],context:'Transport hub',css:195,deprivation:3},
+  {name:'Byker',lat:54.9740,lng:-1.5850,risk:76,level:'high',types:['drugs','violence','weapons'],context:'Residential deprivation',css:265,deprivation:1}
+]),
+// ── NORTH WEST ──
+mkForce('cheshire','Cheshire Constabulary','North West','mixed',53.19,-2.60,10,1070000,2100,2343,78,20,[
+  {name:'Chester City Centre',lat:53.1930,lng:-2.8930,risk:62,level:'high',types:['theft','violence'],context:'NTE & tourism',css:148,deprivation:5},
+  {name:'Warrington Town Centre',lat:53.3900,lng:-2.5970,risk:71,level:'high',types:['violence','public-order'],context:'NTE strip',css:185,deprivation:3},
+  {name:'Crewe Town Centre',lat:53.0990,lng:-2.4416,risk:65,level:'high',types:['drugs','theft'],context:'Transport hub',css:155,deprivation:2},
+  {name:'Ellesmere Port',lat:53.2790,lng:-2.9020,risk:55,level:'med',types:['burglary','damage'],context:'Residential area',css:98,deprivation:2},
+  {name:'Macclesfield',lat:53.2590,lng:-2.1250,risk:42,level:'med',types:['theft','fraud'],context:'Town centre',css:72,deprivation:6}
+]),
+mkForce('cumbria','Cumbria Constabulary','North West','rural',54.55,-3.00,9,500000,1150,6768,58,32,[
+  {name:'Carlisle City Centre',lat:54.8951,lng:-2.9382,risk:62,level:'high',types:['violence','theft'],context:'NTE & market town',css:142,deprivation:3},
+  {name:'Barrow Town Centre',lat:54.1110,lng:-3.2271,risk:68,level:'high',types:['violence','drugs'],context:'Town centre deprivation',css:175,deprivation:1},
+  {name:'Workington',lat:54.6425,lng:-3.5438,risk:48,level:'med',types:['damage','public-order'],context:'Town centre',css:82,deprivation:2},
+  {name:'Kendal',lat:54.3280,lng:-2.7460,risk:35,level:'low',types:['theft','burglary'],context:'Market town',css:52,deprivation:6},
+  {name:'Keswick (seasonal)',lat:54.6013,lng:-3.1347,risk:38,level:'low',types:['theft','damage'],context:'Tourism peak periods',css:48,deprivation:7}
+]),
+mkForce('gmp','Greater Manchester Police','North West','urban',53.48,-2.24,11,2850000,6800,1276,112,3,[
+  {name:'Piccadilly Gardens',lat:53.4808,lng:-2.2369,risk:94,level:'crit',types:['violence','public-order','robbery'],context:'NTE peak zone',css:412,deprivation:1},
+  {name:'Deansgate Locks',lat:53.4748,lng:-2.2507,risk:88,level:'crit',types:['violence','sexual'],context:'NTE corridor',css:358,deprivation:2},
+  {name:'Victoria Station',lat:53.4878,lng:-2.2421,risk:72,level:'high',types:['theft','robbery'],context:'Transport hub',css:198,deprivation:2},
+  {name:'Oxford Road Corridor',lat:53.4698,lng:-2.2372,risk:68,level:'high',types:['drugs','public-order'],context:'Student area',css:165,deprivation:2},
+  {name:'Arndale Centre',lat:53.4838,lng:-2.2398,risk:65,level:'high',types:['theft'],context:'Retail shoplifting',css:88,deprivation:3},
+  {name:'Fallowfield',lat:53.4395,lng:-2.2224,risk:55,level:'med',types:['burglary'],context:'Student residential',css:78,deprivation:3},
+  {name:'Moss Side',lat:53.4530,lng:-2.2430,risk:82,level:'crit',types:['violence','weapons','drugs'],context:'Residential deprivation',css:345,deprivation:1},
+  {name:'Oldham Town Centre',lat:53.5409,lng:-2.1114,risk:71,level:'high',types:['violence','damage'],context:'Town centre',css:192,deprivation:1}
+]),
+mkForce('lancashire','Lancashire Constabulary','North West','mixed',53.76,-2.70,10,1510000,3100,3079,82,12,[
+  {name:'Blackpool Tower Area',lat:53.8159,lng:-3.0553,risk:84,level:'crit',types:['violence','public-order','drugs'],context:'NTE & tourism',css:312,deprivation:1},
+  {name:'Preston City Centre',lat:53.7632,lng:-2.7031,risk:72,level:'high',types:['violence','theft'],context:'NTE strip',css:188,deprivation:2},
+  {name:'Burnley Town Centre',lat:53.7893,lng:-2.2479,risk:66,level:'high',types:['drugs','violence'],context:'Town centre deprivation',css:162,deprivation:1},
+  {name:'Lancaster City Centre',lat:54.0484,lng:-2.8007,risk:52,level:'med',types:['theft','public-order'],context:'Student NTE',css:95,deprivation:4},
+  {name:'Blackburn Town Centre',lat:53.7490,lng:-2.4848,risk:70,level:'high',types:['violence','drugs'],context:'Town centre',css:178,deprivation:1},
+  {name:'Skelmersdale',lat:53.5510,lng:-2.7770,risk:58,level:'med',types:['burglary','damage'],context:'Residential estate',css:108,deprivation:2}
+]),
+mkForce('merseyside','Merseyside Police','North West','urban',53.41,-2.98,11,1430000,3400,647,105,4,[
+  {name:'Concert Square',lat:53.4016,lng:-2.9812,risk:88,level:'crit',types:['violence','sexual'],context:'NTE epicentre',css:378,deprivation:2},
+  {name:'Liverpool ONE',lat:53.4010,lng:-2.9874,risk:76,level:'high',types:['theft','robbery'],context:'Retail zone',css:168,deprivation:3},
+  {name:'Lime Street Station',lat:53.4074,lng:-2.9778,risk:68,level:'high',types:['theft','drugs'],context:'Transport hub',css:152,deprivation:2},
+  {name:'Birkenhead Centre',lat:53.3930,lng:-3.0147,risk:72,level:'high',types:['violence','drugs'],context:'Town centre deprivation',css:195,deprivation:1},
+  {name:'Bootle',lat:53.4458,lng:-2.9893,risk:65,level:'high',types:['violence','damage'],context:'Residential area',css:162,deprivation:1},
+  {name:'St Helens Town Centre',lat:53.4537,lng:-2.7348,risk:60,level:'high',types:['violence','public-order'],context:'NTE',css:138,deprivation:2}
+]),
+// ── YORKSHIRE AND THE HUMBER ──
+mkForce('humberside','Humberside Police','Yorkshire and the Humber','mixed',53.74,-0.55,10,930000,1800,3512,88,10,[
+  {name:'Hull City Centre',lat:53.7457,lng:-0.3367,risk:82,level:'crit',types:['violence','theft'],context:'NTE & retail',css:278,deprivation:1},
+  {name:'Grimsby Town Centre',lat:53.5675,lng:-0.0809,risk:74,level:'high',types:['violence','drugs'],context:'Town centre',css:198,deprivation:1},
+  {name:'Scunthorpe High Street',lat:53.5880,lng:-0.6540,risk:62,level:'high',types:['theft','damage'],context:'Retail area',css:128,deprivation:2},
+  {name:'Bridlington Seafront',lat:54.0820,lng:-0.1870,risk:45,level:'med',types:['public-order','damage'],context:'Seasonal tourism',css:68,deprivation:4},
+  {name:'Beverley',lat:53.8420,lng:-0.4270,risk:35,level:'low',types:['theft'],context:'Market town',css:42,deprivation:7}
+]),
+mkForce('north-yorkshire','North Yorkshire Police','Yorkshire and the Humber','rural',54.10,-1.50,9,830000,1500,8654,52,36,[
+  {name:'York City Centre',lat:53.9600,lng:-1.0873,risk:62,level:'high',types:['theft','violence'],context:'Tourism & NTE',css:148,deprivation:5},
+  {name:'Scarborough Town Centre',lat:54.2797,lng:-0.4049,risk:68,level:'high',types:['violence','drugs'],context:'Coastal town & NTE',css:172,deprivation:2},
+  {name:'Harrogate Town Centre',lat:53.9921,lng:-1.5418,risk:42,level:'med',types:['theft','fraud'],context:'Affluent town centre',css:65,deprivation:8},
+  {name:'Skipton',lat:53.9620,lng:-2.0175,risk:32,level:'low',types:['burglary','damage'],context:'Market town',css:38,deprivation:7},
+  {name:'Selby',lat:53.7840,lng:-1.0700,risk:48,level:'med',types:['theft','drugs'],context:'Town centre',css:82,deprivation:4}
+]),
+mkForce('south-yorkshire','South Yorkshire Police','Yorkshire and the Humber','urban',53.38,-1.47,11,1410000,2700,1552,102,7,[
+  {name:'Sheffield City Centre',lat:53.3811,lng:-1.4701,risk:82,level:'crit',types:['violence','robbery'],context:'NTE & retail',css:295,deprivation:2},
+  {name:'Doncaster Town Centre',lat:53.5228,lng:-1.1326,risk:76,level:'high',types:['violence','theft'],context:'NTE',css:215,deprivation:1},
+  {name:'Rotherham Town Centre',lat:53.4326,lng:-1.3568,risk:72,level:'high',types:['violence','drugs'],context:'Town centre',css:198,deprivation:1},
+  {name:'Sheffield Meadowhall',lat:53.4133,lng:-1.4120,risk:58,level:'med',types:['theft','burglary'],context:'Retail park',css:92,deprivation:3},
+  {name:'Barnsley Town Centre',lat:53.5527,lng:-1.4791,risk:68,level:'high',types:['violence','public-order'],context:'NTE & market',css:178,deprivation:1},
+  {name:'Darnall',lat:53.3720,lng:-1.4230,risk:64,level:'high',types:['drugs','violence'],context:'Residential',css:162,deprivation:1}
+]),
+mkForce('west-yorkshire','West Yorkshire Police','Yorkshire and the Humber','urban',53.80,-1.55,11,2350000,5100,2029,108,5,[
+  {name:'Leeds Call Lane',lat:53.7960,lng:-1.5390,risk:88,level:'crit',types:['violence','sexual'],context:'NTE corridor',css:368,deprivation:2},
+  {name:'Bradford City Centre',lat:53.7938,lng:-1.7518,risk:82,level:'crit',types:['violence','drugs'],context:'Town centre deprivation',css:298,deprivation:1},
+  {name:'Leeds City Station',lat:53.7957,lng:-1.5477,risk:68,level:'high',types:['theft','robbery'],context:'Transport hub',css:178,deprivation:2},
+  {name:'Huddersfield Town Centre',lat:53.6458,lng:-1.7850,risk:65,level:'high',types:['violence','public-order'],context:'NTE',css:158,deprivation:2},
+  {name:'Wakefield Westgate',lat:53.6830,lng:-1.4980,risk:58,level:'med',types:['theft','drugs'],context:'Town centre',css:108,deprivation:3},
+  {name:'Halifax Town Centre',lat:53.7250,lng:-1.8630,risk:62,level:'high',types:['violence','damage'],context:'Town centre NTE',css:145,deprivation:2},
+  {name:'Hyde Park Leeds',lat:53.8110,lng:-1.5620,risk:55,level:'med',types:['burglary'],context:'Student residential',css:78,deprivation:3}
+]),
+// ── EAST MIDLANDS ──
+mkForce('derbyshire','Derbyshire Constabulary','East Midlands','mixed',53.10,-1.50,10,1070000,1900,2625,76,22,[
+  {name:'Derby City Centre',lat:52.9225,lng:-1.4746,risk:72,level:'high',types:['violence','theft'],context:'NTE & retail',css:188,deprivation:2},
+  {name:'Chesterfield Town Centre',lat:53.2350,lng:-1.4218,risk:58,level:'med',types:['theft','drugs'],context:'Market town',css:112,deprivation:3},
+  {name:'Long Eaton',lat:52.8980,lng:-1.2720,risk:48,level:'med',types:['burglary','damage'],context:'Residential',css:78,deprivation:4},
+  {name:'Buxton',lat:53.2600,lng:-1.9110,risk:32,level:'low',types:['theft'],context:'Tourism market town',css:38,deprivation:7},
+  {name:'Normanton',lat:52.9130,lng:-1.4620,risk:65,level:'high',types:['violence','drugs'],context:'Residential deprivation',css:158,deprivation:1}
+]),
+mkForce('leicestershire','Leicestershire Police','East Midlands','mixed',52.63,-1.13,10,1100000,2100,2156,84,15,[
+  {name:'Leicester Clock Tower',lat:52.6340,lng:-1.1260,risk:78,level:'high',types:['violence','robbery'],context:'City centre NTE',css:225,deprivation:1},
+  {name:'Highcross Centre',lat:52.6365,lng:-1.1350,risk:62,level:'high',types:['theft'],context:'Retail shoplifting',css:85,deprivation:2},
+  {name:'Beaumont Leys',lat:52.6680,lng:-1.1630,risk:68,level:'high',types:['violence','drugs'],context:'Residential estate',css:175,deprivation:1},
+  {name:'Loughborough',lat:52.7726,lng:-1.2064,risk:55,level:'med',types:['public-order','violence'],context:'Student NTE',css:108,deprivation:4},
+  {name:'Hinckley Town Centre',lat:52.5410,lng:-1.3730,risk:42,level:'med',types:['theft','damage'],context:'Market town',css:68,deprivation:5}
+]),
+mkForce('lincolnshire','Lincolnshire Police','East Midlands','rural',53.10,-0.20,9,770000,1100,6959,55,35,[
+  {name:'Lincoln City Centre',lat:53.2307,lng:-0.5406,risk:62,level:'high',types:['violence','theft'],context:'NTE & cathedral area',css:142,deprivation:3},
+  {name:'Boston Town Centre',lat:52.9790,lng:-0.0260,risk:58,level:'med',types:['violence','public-order'],context:'Town centre',css:118,deprivation:2},
+  {name:'Grantham',lat:52.9127,lng:-0.6417,risk:42,level:'med',types:['theft','damage'],context:'Market town',css:68,deprivation:5},
+  {name:'Skegness Seafront',lat:53.1450,lng:0.3420,risk:55,level:'med',types:['public-order','violence'],context:'Seasonal tourism',css:98,deprivation:2},
+  {name:'Spalding',lat:52.7870,lng:-0.1530,risk:38,level:'low',types:['theft','burglary'],context:'Market town',css:48,deprivation:4}
+]),
+mkForce('northamptonshire','Northamptonshire Police','East Midlands','mixed',52.24,-0.90,10,760000,1300,2364,82,14,[
+  {name:'Northampton Town Centre',lat:52.2405,lng:-0.9027,risk:74,level:'high',types:['violence','robbery'],context:'NTE & retail',css:198,deprivation:2},
+  {name:'Wellingborough',lat:52.3025,lng:-0.6940,risk:62,level:'high',types:['violence','drugs'],context:'Town centre',css:148,deprivation:2},
+  {name:'Kettering Town Centre',lat:52.3973,lng:-0.7262,risk:55,level:'med',types:['theft','damage'],context:'Retail area',css:98,deprivation:3},
+  {name:'Corby Town Centre',lat:52.4880,lng:-0.6910,risk:58,level:'med',types:['violence','public-order'],context:'Town centre',css:115,deprivation:1},
+  {name:'Daventry',lat:52.2578,lng:-1.1629,risk:35,level:'low',types:['theft','burglary'],context:'Market town',css:42,deprivation:6}
+]),
+mkForce('nottinghamshire','Nottinghamshire Police','East Midlands','urban',53.00,-1.15,10,1170000,2000,2160,95,9,[
+  {name:'Nottingham Market Square',lat:52.9540,lng:-1.1490,risk:82,level:'crit',types:['violence','robbery'],context:'NTE & city centre',css:288,deprivation:1},
+  {name:'Sneinton / St Anns',lat:52.9530,lng:-1.1290,risk:78,level:'high',types:['drugs','violence','weapons'],context:'Residential deprivation',css:268,deprivation:1},
+  {name:'Mansfield Town Centre',lat:53.1470,lng:-1.1980,risk:68,level:'high',types:['violence','theft'],context:'Town centre NTE',css:175,deprivation:1},
+  {name:'Victoria Centre',lat:52.9560,lng:-1.1460,risk:58,level:'med',types:['theft'],context:'Retail shoplifting',css:78,deprivation:2},
+  {name:'Newark',lat:53.0770,lng:-0.8100,risk:45,level:'med',types:['theft','damage'],context:'Market town',css:62,deprivation:5}
+]),
+// ── WEST MIDLANDS REGION ──
+mkForce('staffordshire','Staffordshire Police','West Midlands','mixed',52.83,-2.00,10,1130000,1700,2713,74,21,[
+  {name:'Stoke-on-Trent Hanley',lat:53.0250,lng:-2.1750,risk:74,level:'high',types:['violence','drugs'],context:'City centre NTE',css:198,deprivation:1},
+  {name:'Stafford Town Centre',lat:52.8070,lng:-2.1170,risk:55,level:'med',types:['theft','violence'],context:'County town',css:98,deprivation:4},
+  {name:'Burton-upon-Trent',lat:52.8020,lng:-1.6290,risk:52,level:'med',types:['violence','public-order'],context:'Town centre NTE',css:92,deprivation:3},
+  {name:'Tamworth',lat:52.6340,lng:-1.6950,risk:48,level:'med',types:['theft','damage'],context:'Town centre',css:78,deprivation:4},
+  {name:'Newcastle-under-Lyme',lat:53.0110,lng:-2.2280,risk:58,level:'med',types:['violence','drugs'],context:'Student area NTE',css:115,deprivation:2}
+]),
+mkForce('warwickshire','Warwickshire Police','West Midlands','mixed',52.28,-1.58,10,580000,1000,1975,64,30,[
+  {name:'Nuneaton Town Centre',lat:52.5230,lng:-1.4680,risk:65,level:'high',types:['violence','theft'],context:'Town centre NTE',css:155,deprivation:2},
+  {name:'Rugby Town Centre',lat:52.3710,lng:-1.2640,risk:52,level:'med',types:['theft','public-order'],context:'Town centre',css:88,deprivation:4},
+  {name:'Leamington Spa',lat:52.2920,lng:-1.5360,risk:48,level:'med',types:['theft','violence'],context:'NTE area',css:82,deprivation:5},
+  {name:'Warwick',lat:52.2820,lng:-1.5850,risk:35,level:'low',types:['theft'],context:'Historic town',css:42,deprivation:7},
+  {name:'Stratford-upon-Avon',lat:52.1917,lng:-1.7083,risk:38,level:'low',types:['theft','fraud'],context:'Tourism area',css:48,deprivation:8}
+]),
+mkForce('west-mercia','West Mercia Police','West Midlands','rural',52.40,-2.70,9,1290000,2100,7428,62,28,[
+  {name:'Worcester City Centre',lat:52.1936,lng:-2.2216,risk:62,level:'high',types:['violence','theft'],context:'NTE & retail',css:142,deprivation:3},
+  {name:'Hereford City Centre',lat:52.0565,lng:-2.7160,risk:55,level:'med',types:['theft','drugs'],context:'Market town',css:98,deprivation:3},
+  {name:'Shrewsbury Town Centre',lat:52.7077,lng:-2.7540,risk:52,level:'med',types:['theft','violence'],context:'County town NTE',css:88,deprivation:4},
+  {name:'Telford Town Centre',lat:52.6790,lng:-2.4490,risk:65,level:'high',types:['violence','drugs'],context:'New town centre',css:158,deprivation:2},
+  {name:'Redditch',lat:52.3063,lng:-1.9453,risk:48,level:'med',types:['theft','damage'],context:'Town centre',css:72,deprivation:3}
+]),
+mkForce('west-midlands','West Midlands Police','West Midlands','urban',52.49,-1.89,11,2940000,6700,902,118,2,[
+  {name:'Broad Street Birmingham',lat:52.4740,lng:-1.9120,risk:92,level:'crit',types:['violence','sexual'],context:'NTE epicentre',css:405,deprivation:1},
+  {name:'New Street Station',lat:52.4778,lng:-1.8991,risk:85,level:'crit',types:['robbery','theft'],context:'Transport hub',css:298,deprivation:2},
+  {name:'Bull Ring',lat:52.4772,lng:-1.8920,risk:68,level:'high',types:['theft'],context:'Retail shoplifting',css:92,deprivation:2},
+  {name:'Handsworth',lat:52.5050,lng:-1.9310,risk:78,level:'high',types:['drugs','violence','weapons'],context:'Residential deprivation',css:285,deprivation:1},
+  {name:'Coventry City Centre',lat:52.4068,lng:-1.5197,risk:75,level:'high',types:['violence','theft'],context:'City centre NTE',css:215,deprivation:1},
+  {name:'Wolverhampton',lat:52.5870,lng:-2.1288,risk:80,level:'crit',types:['violence','drugs'],context:'Town centre deprivation',css:268,deprivation:1},
+  {name:'Digbeth',lat:52.4735,lng:-1.8840,risk:62,level:'high',types:['drugs','public-order'],context:'Emerging NTE area',css:148,deprivation:2}
+]),
+// ── EASTERN ──
+mkForce('bedfordshire','Bedfordshire Police','Eastern','mixed',52.00,-0.45,11,690000,1200,1235,92,11,[
+  {name:'Luton Town Centre',lat:51.8787,lng:-0.4200,risk:82,level:'crit',types:['violence','robbery'],context:'Town centre & NTE',css:278,deprivation:1},
+  {name:'Bedford Town Centre',lat:52.1363,lng:-0.4699,risk:68,level:'high',types:['violence','theft'],context:'NTE area',css:168,deprivation:2},
+  {name:'Dunstable',lat:51.8860,lng:-0.5210,risk:52,level:'med',types:['theft','damage'],context:'Town centre',css:88,deprivation:3},
+  {name:'Luton Airport',lat:51.8763,lng:-0.3717,risk:55,level:'med',types:['theft','fraud'],context:'Transport hub',css:82,deprivation:4}
+]),
+mkForce('cambridgeshire','Cambridgeshire Constabulary','Eastern','mixed',52.35,0.10,10,870000,1550,3389,68,26,[
+  {name:'Peterborough City Centre',lat:52.5695,lng:-0.2405,risk:72,level:'high',types:['violence','theft'],context:'City centre NTE',css:188,deprivation:1},
+  {name:'Cambridge City Centre',lat:52.2053,lng:0.1218,risk:58,level:'med',types:['theft','burglary'],context:'Tourism & student NTE',css:108,deprivation:5},
+  {name:'Wisbech',lat:52.6640,lng:0.1590,risk:62,level:'high',types:['violence','drugs'],context:'Market town deprivation',css:148,deprivation:1},
+  {name:'Huntingdon',lat:52.3300,lng:-0.1870,risk:42,level:'med',types:['theft','damage'],context:'Market town',css:62,deprivation:5}
+]),
+mkForce('essex','Essex Police','Eastern','mixed',51.75,0.60,10,1860000,3400,3670,82,16,[
+  {name:'Southend-on-Sea',lat:51.5390,lng:0.7108,risk:78,level:'high',types:['violence','public-order'],context:'Coastal NTE & tourism',css:218,deprivation:2},
+  {name:'Chelmsford City Centre',lat:51.7361,lng:0.4798,risk:62,level:'high',types:['theft','violence'],context:'County town NTE',css:142,deprivation:4},
+  {name:'Basildon Town Centre',lat:51.5762,lng:-0.4886,risk:68,level:'high',types:['violence','drugs'],context:'Town centre',css:168,deprivation:2},
+  {name:'Colchester Town Centre',lat:51.8892,lng:0.8974,risk:58,level:'med',types:['violence','theft'],context:'Student & garrison town',css:112,deprivation:3},
+  {name:'Harlow Town Centre',lat:51.7733,lng:-0.1097,risk:64,level:'high',types:['violence','robbery'],context:'Town centre',css:152,deprivation:2},
+  {name:'Clacton-on-Sea',lat:51.7932,lng:1.1529,risk:55,level:'med',types:['damage','public-order'],context:'Coastal deprivation',css:92,deprivation:1}
+]),
+mkForce('hertfordshire','Hertfordshire Constabulary','Eastern','mixed',51.80,-0.20,10,1200000,2100,1643,65,31,[
+  {name:'Watford Town Centre',lat:51.6565,lng:-0.3962,risk:68,level:'high',types:['violence','theft'],context:'NTE & retail',css:168,deprivation:3},
+  {name:'Stevenage Town Centre',lat:51.9010,lng:-0.2019,risk:62,level:'high',types:['violence','drugs'],context:'Town centre',css:142,deprivation:2},
+  {name:'Hemel Hempstead',lat:51.7536,lng:-0.4692,risk:52,level:'med',types:['theft','damage'],context:'Town centre',css:88,deprivation:4},
+  {name:'St Albans',lat:51.7557,lng:-0.3360,risk:38,level:'low',types:['theft'],context:'Historic city',css:45,deprivation:7},
+  {name:'Hatfield',lat:51.7600,lng:-0.2280,risk:48,level:'med',types:['violence','public-order'],context:'University town',css:78,deprivation:4}
+]),
+mkForce('norfolk','Norfolk Constabulary','Eastern','rural',52.65,1.10,9,920000,1550,5372,60,33,[
+  {name:'Norwich Prince of Wales Rd',lat:52.6292,lng:1.3070,risk:72,level:'high',types:['violence','sexual'],context:'NTE strip',css:198,deprivation:2},
+  {name:'Great Yarmouth',lat:52.6072,lng:1.7289,risk:68,level:'high',types:['violence','drugs'],context:'Coastal deprivation',css:172,deprivation:1},
+  {name:'Kings Lynn',lat:52.7540,lng:0.3983,risk:55,level:'med',types:['theft','violence'],context:'Market town',css:98,deprivation:2},
+  {name:'Thetford',lat:52.4116,lng:0.7440,risk:42,level:'med',types:['damage','public-order'],context:'Town centre',css:62,deprivation:3},
+  {name:'Cromer',lat:52.9310,lng:1.2980,risk:35,level:'low',types:['theft'],context:'Seasonal coastal',css:38,deprivation:5}
+]),
+mkForce('suffolk','Suffolk Constabulary','Eastern','rural',52.20,1.10,10,770000,1250,3801,58,34,[
+  {name:'Ipswich Town Centre',lat:52.0567,lng:1.1482,risk:68,level:'high',types:['violence','theft'],context:'NTE & retail',css:168,deprivation:2},
+  {name:'Lowestoft',lat:52.4766,lng:1.7529,risk:62,level:'high',types:['violence','drugs'],context:'Coastal deprivation',css:148,deprivation:1},
+  {name:'Bury St Edmunds',lat:52.2429,lng:0.7143,risk:42,level:'med',types:['theft','damage'],context:'Market town',css:62,deprivation:6},
+  {name:'Felixstowe',lat:51.9637,lng:1.3517,risk:35,level:'low',types:['theft','burglary'],context:'Port town',css:42,deprivation:5}
+]),
+// ── SOUTH EAST ──
+mkForce('hampshire','Hampshire Constabulary','South East','mixed',51.06,-1.30,10,2020000,3000,3769,72,23,[
+  {name:'Southampton City Centre',lat:50.9097,lng:-1.4044,risk:75,level:'high',types:['violence','robbery'],context:'NTE & port area',css:208,deprivation:2},
+  {name:'Portsmouth Guildhall Walk',lat:50.7989,lng:-1.0872,risk:78,level:'high',types:['violence','sexual'],context:'NTE epicentre',css:228,deprivation:1},
+  {name:'Basingstoke Town Centre',lat:51.2618,lng:-1.0871,risk:55,level:'med',types:['theft','violence'],context:'Town centre',css:98,deprivation:4},
+  {name:'Winchester',lat:51.0632,lng:-1.3080,risk:38,level:'low',types:['theft'],context:'Historic city',css:45,deprivation:8},
+  {name:'Isle of Wight - Ryde',lat:50.7303,lng:-1.1597,risk:48,level:'med',types:['damage','public-order'],context:'Seasonal coastal',css:72,deprivation:3}
+]),
+mkForce('kent','Kent Police','South East','mixed',51.25,0.75,10,1870000,3500,3736,78,17,[
+  {name:'Maidstone Town Centre',lat:51.2720,lng:0.5224,risk:65,level:'high',types:['violence','theft'],context:'County town NTE',css:155,deprivation:3},
+  {name:'Margate / Cliftonville',lat:51.3865,lng:1.3870,risk:72,level:'high',types:['violence','drugs'],context:'Coastal deprivation',css:192,deprivation:1},
+  {name:'Canterbury City Centre',lat:51.2802,lng:1.0789,risk:62,level:'high',types:['theft','violence'],context:'Student NTE & tourism',css:138,deprivation:4},
+  {name:'Chatham High Street',lat:51.3745,lng:0.5285,risk:68,level:'high',types:['violence','robbery'],context:'Town centre deprivation',css:172,deprivation:1},
+  {name:'Folkestone',lat:51.0810,lng:1.1703,risk:55,level:'med',types:['drugs','damage'],context:'Coastal town',css:98,deprivation:2},
+  {name:'Gravesend',lat:51.4413,lng:0.3680,risk:52,level:'med',types:['theft','violence'],context:'Town centre',css:88,deprivation:3}
+]),
+mkForce('surrey','Surrey Police','South East','mixed',51.25,-0.45,10,1200000,2000,1663,48,40,[
+  {name:'Guildford Town Centre',lat:51.2362,lng:-0.5704,risk:52,level:'med',types:['theft','violence'],context:'NTE & retail',css:88,deprivation:6},
+  {name:'Woking Town Centre',lat:51.3181,lng:-0.5568,risk:48,level:'med',types:['violence','public-order'],context:'Town centre NTE',css:78,deprivation:5},
+  {name:'Staines',lat:51.4340,lng:-0.5103,risk:45,level:'med',types:['theft','damage'],context:'Town centre',css:68,deprivation:5},
+  {name:'Redhill',lat:51.2405,lng:-0.1704,risk:42,level:'med',types:['theft'],context:'Town centre',css:58,deprivation:5}
+]),
+mkForce('sussex','Sussex Police','South East','mixed',50.90,-0.30,10,1720000,2800,3735,68,25,[
+  {name:'Brighton West Street',lat:50.8229,lng:-0.1426,risk:82,level:'crit',types:['violence','sexual'],context:'NTE epicentre',css:298,deprivation:2},
+  {name:'Hastings Town Centre',lat:50.8570,lng:0.5730,risk:68,level:'high',types:['violence','drugs'],context:'Coastal deprivation',css:172,deprivation:1},
+  {name:'Crawley Town Centre',lat:51.1100,lng:-0.1870,risk:58,level:'med',types:['violence','theft'],context:'Town centre NTE',css:108,deprivation:3},
+  {name:'Eastbourne Town Centre',lat:50.7689,lng:0.2814,risk:48,level:'med',types:['theft','damage'],context:'Coastal retirement',css:72,deprivation:4},
+  {name:'Worthing',lat:50.8145,lng:-0.3719,risk:52,level:'med',types:['theft','public-order'],context:'Coastal town',css:82,deprivation:4}
+]),
+mkForce('thames-valley','Thames Valley Police','South East','mixed',51.65,-1.10,9,2430000,4200,5642,72,24,[
+  {name:'Reading Town Centre',lat:51.4551,lng:-0.9787,risk:75,level:'high',types:['violence','robbery'],context:'NTE & transport hub',css:212,deprivation:2},
+  {name:'Oxford City Centre',lat:51.7520,lng:-1.2577,risk:65,level:'high',types:['theft','violence'],context:'Student NTE & tourism',css:152,deprivation:4},
+  {name:'Milton Keynes Centre:MK',lat:52.0406,lng:-0.7594,risk:68,level:'high',types:['violence','theft'],context:'City centre NTE',css:168,deprivation:3},
+  {name:'Slough High Street',lat:51.5105,lng:-0.5950,risk:72,level:'high',types:['violence','drugs'],context:'Town centre deprivation',css:192,deprivation:1},
+  {name:'Aylesbury',lat:51.8168,lng:-0.8084,risk:52,level:'med',types:['theft','damage'],context:'County town',css:88,deprivation:4},
+  {name:'High Wycombe',lat:51.6287,lng:-0.7482,risk:58,level:'med',types:['violence','drugs'],context:'Town centre',css:108,deprivation:3}
+]),
+// ── SOUTH WEST ──
+mkForce('avon-somerset','Avon and Somerset Police','South West','mixed',51.35,-2.70,10,1730000,2800,4777,75,19,[
+  {name:'Bristol Broadmead',lat:51.4577,lng:-2.5909,risk:72,level:'high',types:['theft','robbery'],context:'City centre retail',css:178,deprivation:2},
+  {name:'Bristol Harbourside',lat:51.4490,lng:-2.5980,risk:78,level:'high',types:['violence','sexual'],context:'NTE area',css:228,deprivation:2},
+  {name:'Bath City Centre',lat:51.3811,lng:-2.3590,risk:55,level:'med',types:['theft'],context:'Tourism & NTE',css:78,deprivation:5},
+  {name:'Weston-super-Mare',lat:51.3460,lng:-2.9770,risk:62,level:'high',types:['violence','drugs'],context:'Coastal town',css:142,deprivation:2},
+  {name:'Taunton Town Centre',lat:51.0150,lng:-3.1061,risk:45,level:'med',types:['theft','damage'],context:'County town',css:65,deprivation:5},
+  {name:'St Pauls Bristol',lat:51.4630,lng:-2.5830,risk:68,level:'high',types:['drugs','violence'],context:'Residential deprivation',css:172,deprivation:1}
+]),
+mkForce('devon-cornwall','Devon and Cornwall Police','South West','rural',50.60,-3.80,9,1780000,3100,10272,56,37,[
+  {name:'Plymouth City Centre',lat:50.3715,lng:-4.1427,risk:72,level:'high',types:['violence','theft'],context:'NTE & naval port',css:188,deprivation:1},
+  {name:'Exeter City Centre',lat:50.7236,lng:-3.5275,risk:58,level:'med',types:['theft','violence'],context:'Student NTE & tourism',css:108,deprivation:4},
+  {name:'Torquay Harbour',lat:50.4619,lng:-3.5253,risk:55,level:'med',types:['violence','public-order'],context:'Coastal NTE',css:98,deprivation:2},
+  {name:'Newquay (seasonal)',lat:50.4160,lng:-5.0757,risk:62,level:'high',types:['violence','drugs'],context:'Tourist NTE seasonal',css:148,deprivation:3},
+  {name:'Barnstaple',lat:51.0784,lng:-4.0622,risk:42,level:'med',types:['theft','damage'],context:'Market town',css:62,deprivation:3},
+  {name:'Truro',lat:50.2632,lng:-5.0510,risk:38,level:'low',types:['theft'],context:'County town',css:42,deprivation:5}
+]),
+mkForce('dorset','Dorset Police','South West','rural',50.75,-2.20,10,780000,1250,2653,58,38,[
+  {name:'Bournemouth Town Centre',lat:50.7192,lng:-1.8808,risk:72,level:'high',types:['violence','theft'],context:'NTE & coastal',css:188,deprivation:2},
+  {name:'Poole Quay',lat:50.7150,lng:-1.9870,risk:55,level:'med',types:['violence','public-order'],context:'NTE waterfront',css:98,deprivation:4},
+  {name:'Weymouth Seafront',lat:50.6098,lng:-2.4541,risk:52,level:'med',types:['public-order','damage'],context:'Seasonal coastal',css:82,deprivation:3},
+  {name:'Boscombe',lat:50.7260,lng:-1.8420,risk:65,level:'high',types:['drugs','violence'],context:'Residential deprivation',css:155,deprivation:1}
+]),
+mkForce('gloucestershire','Gloucestershire Constabulary','South West','mixed',51.85,-2.20,10,640000,1100,2653,62,29,[
+  {name:'Gloucester City Centre',lat:51.8642,lng:-2.2444,risk:65,level:'high',types:['violence','theft'],context:'NTE & retail',css:152,deprivation:2},
+  {name:'Cheltenham Town Centre',lat:51.9000,lng:-2.0783,risk:55,level:'med',types:['theft','violence'],context:'NTE & racecourse events',css:98,deprivation:4},
+  {name:'Stroud',lat:51.7440,lng:-2.2140,risk:38,level:'low',types:['theft','damage'],context:'Market town',css:42,deprivation:6},
+  {name:'Cinderford',lat:51.8250,lng:-2.4990,risk:45,level:'med',types:['drugs','damage'],context:'Forest of Dean',css:72,deprivation:2}
+]),
+mkForce('wiltshire','Wiltshire Police','South West','rural',51.35,-1.80,10,730000,1050,3485,55,39,[
+  {name:'Swindon Town Centre',lat:51.5600,lng:-1.7850,risk:65,level:'high',types:['violence','theft'],context:'Town centre NTE',css:152,deprivation:2},
+  {name:'Salisbury City Centre',lat:51.0693,lng:-1.7957,risk:48,level:'med',types:['theft','violence'],context:'Historic city NTE',css:78,deprivation:5},
+  {name:'Trowbridge',lat:51.3199,lng:-2.2086,risk:42,level:'med',types:['theft','damage'],context:'County town',css:62,deprivation:4},
+  {name:'Chippenham',lat:51.4600,lng:-2.1160,risk:35,level:'low',types:['theft'],context:'Market town',css:38,deprivation:6}
+]),
+// ── LONDON ──
+mkForce('met','Metropolitan Police Service','London','urban',51.50,-0.12,10,9000000,32000,1572,98,1,[
+  {name:'Westminster / West End',lat:51.5107,lng:-0.1300,risk:88,level:'crit',types:['theft','robbery'],context:'Tourism & NTE',css:345,deprivation:3},
+  {name:'Brixton High Street',lat:51.4613,lng:-0.1156,risk:85,level:'crit',types:['violence','drugs','weapons'],context:'NTE hotspot',css:328,deprivation:1},
+  {name:'Stratford Westfield',lat:51.5430,lng:-0.0018,risk:72,level:'high',types:['theft','robbery'],context:'Retail centre',css:168,deprivation:2},
+  {name:'Camden Town',lat:51.5392,lng:-0.1426,risk:68,level:'high',types:['theft','drugs'],context:'Tourism & NTE',css:155,deprivation:3},
+  {name:'Croydon Town Centre',lat:51.3762,lng:-0.0982,risk:78,level:'high',types:['violence','robbery'],context:'Town centre NTE',css:248,deprivation:1},
+  {name:'Tottenham High Road',lat:51.5883,lng:-0.0726,risk:75,level:'high',types:['violence','weapons'],context:'Residential deprivation',css:268,deprivation:1},
+  {name:'Woolwich',lat:51.4907,lng:0.0634,risk:70,level:'high',types:['violence','robbery'],context:'Town centre',css:198,deprivation:1},
+  {name:'Hackney / Dalston',lat:51.5465,lng:-0.0754,risk:72,level:'high',types:['violence','drugs'],context:'NTE emerging area',css:195,deprivation:2}
+],[95,58,35,40,68,82,98,92,108,128,158,178]),
+mkForce('city-of-london','City of London Police','London','urban',51.5155,-0.0922,14,10000,800,2.9,185,43,[
+  {name:'Bank Junction',lat:51.5133,lng:-0.0886,risk:62,level:'high',types:['fraud','theft'],context:'Financial district',css:148,deprivation:10},
+  {name:'Liverpool Street Station',lat:51.5178,lng:-0.0823,risk:68,level:'high',types:['theft','robbery'],context:'Transport hub',css:165,deprivation:10},
+  {name:'Cheapside',lat:51.5141,lng:-0.0927,risk:48,level:'med',types:['theft','fraud'],context:'Retail & offices',css:72,deprivation:10},
+  {name:'Barbican',lat:51.5204,lng:-0.0940,risk:35,level:'low',types:['theft'],context:'Residential & cultural',css:38,deprivation:10}
+],[45,22,12,15,65,82,75,72,68,52,38,28]),
+// ── WALES ──
+mkForce('dyfed-powys','Dyfed-Powys Police','Wales','rural',52.10,-3.90,9,520000,1200,10588,48,42,[
+  {name:'Carmarthen Town Centre',lat:51.8560,lng:-4.3125,risk:52,level:'med',types:['violence','theft'],context:'County town NTE',css:88,deprivation:4},
+  {name:'Aberystwyth',lat:52.4153,lng:-4.0829,risk:55,level:'med',types:['violence','public-order'],context:'Student NTE & seasonal',css:98,deprivation:4},
+  {name:'Llanelli Town Centre',lat:51.6820,lng:-4.1620,risk:58,level:'med',types:['violence','drugs'],context:'Town centre deprivation',css:112,deprivation:2},
+  {name:'Haverfordwest',lat:51.8010,lng:-4.9690,risk:42,level:'med',types:['theft','damage'],context:'County town',css:62,deprivation:4},
+  {name:'Newtown',lat:52.5130,lng:-3.3140,risk:32,level:'low',types:['theft'],context:'Market town',css:35,deprivation:5}
+]),
+mkForce('gwent','Gwent Police','Wales','mixed',51.65,-3.00,10,600000,1350,1553,82,13,[
+  {name:'Newport City Centre',lat:51.5877,lng:-2.9984,risk:72,level:'high',types:['violence','drugs'],context:'City centre NTE',css:192,deprivation:1},
+  {name:'Cwmbran Town Centre',lat:51.6530,lng:-3.0210,risk:55,level:'med',types:['theft','public-order'],context:'New town centre',css:88,deprivation:3},
+  {name:'Ebbw Vale',lat:51.7780,lng:-3.2090,risk:52,level:'med',types:['drugs','damage'],context:'Valley town deprivation',css:92,deprivation:1},
+  {name:'Pontypool',lat:51.7030,lng:-3.0450,risk:48,level:'med',types:['violence','damage'],context:'Valley town',css:78,deprivation:2},
+  {name:'Caerphilly Town Centre',lat:51.5760,lng:-3.2190,risk:45,level:'med',types:['theft','public-order'],context:'Market town',css:65,deprivation:3}
+]),
+mkForce('north-wales','North Wales Police','Wales','mixed',53.10,-3.50,9,700000,1500,6317,64,27,[
+  {name:'Wrexham Town Centre',lat:53.0475,lng:-2.9966,risk:68,level:'high',types:['violence','drugs'],context:'Town centre NTE',css:172,deprivation:1},
+  {name:'Rhyl Town Centre',lat:53.3192,lng:-3.4880,risk:72,level:'high',types:['violence','drugs'],context:'Coastal deprivation',css:192,deprivation:1},
+  {name:'Bangor',lat:53.2274,lng:-4.1293,risk:52,level:'med',types:['violence','public-order'],context:'Student NTE',css:88,deprivation:3},
+  {name:'Colwyn Bay',lat:53.2940,lng:-3.7260,risk:48,level:'med',types:['theft','damage'],context:'Coastal town',css:72,deprivation:3},
+  {name:'Llandudno',lat:53.3244,lng:-3.8277,risk:42,level:'med',types:['theft'],context:'Tourism seasonal',css:55,deprivation:5}
+]),
+mkForce('south-wales','South Wales Police','Wales','urban',51.48,-3.18,10,1340000,2900,2120,92,9,[
+  {name:'Cardiff St Mary Street',lat:51.4768,lng:-3.1778,risk:85,level:'crit',types:['violence','sexual'],context:'NTE epicentre',css:348,deprivation:2},
+  {name:'Swansea Wind Street',lat:51.6193,lng:-3.9420,risk:78,level:'high',types:['violence','public-order'],context:'NTE strip',css:228,deprivation:2},
+  {name:'Cardiff Bay',lat:51.4637,lng:-3.1639,risk:62,level:'high',types:['public-order','damage'],context:'Weekend evenings',css:128,deprivation:3},
+  {name:'Merthyr Tydfil',lat:51.7481,lng:-3.3779,risk:68,level:'high',types:['drugs','violence'],context:'Valley town deprivation',css:178,deprivation:1},
+  {name:'Bridgend Town Centre',lat:51.5074,lng:-3.5764,risk:58,level:'med',types:['violence','theft'],context:'Town centre NTE',css:112,deprivation:2},
+  {name:'Newport Road Cardiff',lat:51.4830,lng:-3.1530,risk:65,level:'high',types:['drugs','robbery'],context:'Urban corridor',css:155,deprivation:1}
+])
+];
+
+const FORCE_MAP={};FORCES.forEach(f=>FORCE_MAP[f.key]=f);
+const NATIONAL={
+  population:FORCES.reduce((s,f)=>s+f.population,0),
+  officers:FORCES.reduce((s,f)=>s+f.officers,0),
+  totalHotspots:FORCES.reduce((s,f)=>s+f.hotspots.length,0),
+  avgCrimeRate:+(FORCES.reduce((s,f)=>s+f.crimeRate,0)/FORCES.length).toFixed(1),
+  avgAccuracy:+(FORCES.reduce((s,f)=>s+f.kpis.predAccuracy,0)/FORCES.length).toFixed(1),
+  avgSeverity:Math.round(FORCES.reduce((s,f)=>s+f.severityScore,0)/FORCES.length)
+};
+
+/* ═══════════════════════════════════════════
+   APPLICATION LOGIC
+   ═══════════════════════════════════════════ */
+
+// ── Populate Force Dropdowns ──
+function populateForceDropdowns(){
+  const ids=['filterForce','forecastForce','peelForce','insightForce','compareForces','contactForce'];
+  ids.forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    const isMulti=el.multiple;
+    if(!isMulti)el.innerHTML='<option value="all">All Forces (National)</option>';
+    else el.innerHTML='';
+    REGIONS.forEach(reg=>{
+      const og=document.createElement('optgroup');og.label=reg;
+      FORCES.filter(f=>f.region===reg).forEach(f=>{
+        const o=document.createElement('option');o.value=f.key;o.textContent=f.name;og.appendChild(o);
+      });
+      el.appendChild(og);
+    });
+  });
+}
+
+// ── Page Navigation ──
+function showPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('pg-'+id).classList.add('active');
+  document.querySelectorAll('.top-tab').forEach(t=>t.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(id==='dashboard'&&heroMapInstance)setTimeout(()=>heroMapInstance.invalidateSize(),100);
+}
+
+// ── Dashboard Tabs ──
+document.querySelectorAll('.d-tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.d-tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.panel).classList.add('active');
+    if(tab.dataset.panel==='hotspots'&&mainMap)setTimeout(()=>mainMap.invalidateSize(),100);
+  });
+});
+
+// ── KPI Rendering ──
+function renderKPIs(force){
+  const k=force?force.kpis:null;
+  const sec=document.getElementById('kpi-section');
+  if(!force){
+    sec.innerHTML=`
+      <div class="kpi c-blue"><div class="kpi-val">${NATIONAL.population.toLocaleString()}</div><div class="kpi-lbl">Population Covered</div><div class="kpi-trend neutral">43 forces across England & Wales</div></div>
+      <div class="kpi c-teal"><div class="kpi-val">${NATIONAL.totalHotspots}</div><div class="kpi-lbl">Active Hotspots Monitored</div><div class="kpi-trend down">Across all force areas</div></div>
+      <div class="kpi c-purple"><div class="kpi-val">${NATIONAL.officers.toLocaleString()}</div><div class="kpi-lbl">Total Officers</div><div class="kpi-trend neutral">1:${Math.round(NATIONAL.population/NATIONAL.officers)} officer ratio</div></div>
+      <div class="kpi c-amber"><div class="kpi-val">${NATIONAL.avgCrimeRate}</div><div class="kpi-lbl">Avg Crime Rate / 1,000</div><div class="kpi-trend neutral">National average</div></div>
+      <div class="kpi c-green"><div class="kpi-val">${NATIONAL.avgAccuracy}%</div><div class="kpi-lbl">Avg Prediction Accuracy</div><div class="kpi-trend down">ML model performance</div></div>`;
+    return;
+  }
+  sec.innerHTML=`
+    <div class="kpi c-blue"><div class="kpi-val">${k.incidents}</div><div class="kpi-lbl">Daily Incidents (avg)</div><div class="kpi-trend neutral">${force.crimeRate} per 1,000 pop</div></div>
+    <div class="kpi c-teal"><div class="kpi-val">${k.activeHotspots}</div><div class="kpi-lbl">Active Hotspots</div><div class="kpi-trend neutral">${force.type} force profile</div></div>
+    <div class="kpi c-purple"><div class="kpi-val">${k.officersDeployed}</div><div class="kpi-lbl">Officers Deployed</div><div class="kpi-trend neutral">of ${force.officers.toLocaleString()} total</div></div>
+    <div class="kpi c-amber"><div class="kpi-val">${k.predAccuracy}%</div><div class="kpi-lbl">Prediction Accuracy</div><div class="kpi-trend down">ML confidence score</div></div>
+    <div class="kpi c-green"><div class="kpi-val">${k.responseTime} min</div><div class="kpi-lbl">Avg Response Time</div><div class="kpi-trend ${k.responseTime<9?'down':'up'}">${k.responseTime<9?'Within':'Above'} target</div></div>`;
+}
+
+// ── Hero Map ──
+let heroMapInstance;
+function initHeroMap(){
+  heroMapInstance=L.map('heroMap',{center:[54.0,-2.5],zoom:5.5,zoomControl:false,attributionControl:false,dragging:false,scrollWheelZoom:false});
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(heroMapInstance);
+  FORCES.forEach(f=>{
+    if(f.key==='city-of-london')return;
+    const maxRisk=Math.max(...f.hotspots.map(h=>h.risk));
+    const color=maxRisk>=80?'#EF4444':maxRisk>=60?'#F97316':maxRisk>=40?'#EAB308':'#22C55E';
+    L.circleMarker(f.center,{radius:Math.max(4,Math.sqrt(f.population)/200),color:color,fillColor:color,fillOpacity:0.5,weight:1.5}).addTo(heroMapInstance).bindTooltip(`<strong>${f.name}</strong><br>${f.population.toLocaleString()} pop · ${f.hotspots.length} hotspots<br>Crime rate: ${f.crimeRate}/1,000`);
+  });
+}
+
+// ── Main Map ──
+let mainMap,mainMapLayers=[];
+function createHexagon(center,sizeKm){
+  const pts=[];
+  for(let i=0;i<6;i++){const a=(60*i-30)*Math.PI/180;pts.push([center[0]+(sizeKm/111.32)*Math.cos(a),center[1]+(sizeKm/(111.32*Math.cos(center[0]*Math.PI/180)))*Math.sin(a)]);}
+  return pts;
+}
+function initMainMap(){
+  mainMap=L.map('mainMap',{center:[53.0,-1.5],zoom:6,attributionControl:false});
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{maxZoom:19}).addTo(mainMap);
+  renderHotspots('all','all');
+}
+function renderHotspots(forceKey,crimeFilter){
+  mainMapLayers.forEach(l=>mainMap.removeLayer(l));mainMapLayers=[];
+  const isCss=document.getElementById('cssMapToggle').checked;
+  let hotspots=[],forceName='All Forces',forceObj=null;
+  if(forceKey==='all'){
+    FORCES.forEach(f=>f.hotspots.forEach(h=>hotspots.push({...h,force:f.name})));
+    mainMap.setView([53.0,-1.5],6);forceName='All Forces (National)';
+  } else {
+    forceObj=FORCE_MAP[forceKey];if(!forceObj)return;
+    hotspots=forceObj.hotspots.map(h=>({...h,force:forceObj.name}));
+    mainMap.setView(forceObj.center,forceObj.zoom);forceName=forceObj.name;
+  }
+  if(crimeFilter!=='all'){
+    hotspots=hotspots.filter(h=>h.types.some(t=>t.includes(crimeFilter)));
+  }
+  hotspots.forEach(h=>{
+    const color=h.level==='crit'?'#EF4444':h.level==='high'?'#F97316':h.level==='med'?'#EAB308':'#22C55E';
+    const fillOp=h.level==='crit'?0.4:h.level==='high'?0.35:h.level==='med'?0.25:0.2;
+    const hexSize=isCss?Math.max(0.12,(h.css||100)/800):Math.max(0.12,h.risk/200);
+    const hex=L.polygon(createHexagon([h.lat,h.lng],hexSize),{color,fillColor:color,fillOpacity:fillOp,weight:2}).addTo(mainMap);
+    hex.bindTooltip(`<strong>${h.name}</strong>${h.force?'<br>'+h.force:''}<br>Risk: ${h.risk} | CSS: ${h.css||'N/A'}<br>${h.types.map(t=>CRIME_LABELS[t]||t).join(', ')}<br>${h.context}<br>Deprivation decile: ${h.deprivation||'N/A'}`,{sticky:true});
+    mainMapLayers.push(hex);
+    const mk=L.circleMarker([h.lat,h.lng],{radius:5,color:'#fff',fillColor:color,fillOpacity:1,weight:2}).addTo(mainMap);
+    mainMapLayers.push(mk);
+  });
+  renderHotspotList(hotspots,forceName);
+  document.getElementById('mapTitle').textContent=forceKey==='all'?'National Hotspot Map':forceName+' — Hotspot Map';
+  document.getElementById('mapSub').textContent=hotspots.length+' hotspots identified'+(isCss?' (severity-weighted sizing)':' with geofenced hexagon grid');
+  renderKPIs(forceObj);
+  if(temporalChartInstance&&forceObj){
+    temporalChartInstance.data.datasets[0].data=forceObj.temporal;temporalChartInstance.update();
+  }
+}
+function renderHotspotList(hotspots,forceName){
+  const list=document.getElementById('hsList');
+  document.getElementById('hsListSub').textContent=forceName+' — '+hotspots.length+' hotspots';
+  const sorted=hotspots.sort((a,b)=>b.risk-a.risk).slice(0,20);
+  list.innerHTML=sorted.map((h,i)=>`<div class="hs-item ${h.level}" onclick="mainMap.setView([${h.lat},${h.lng}],15)">
+    <div class="hs-rank">${i+1}</div>
+    <div class="hs-info"><div class="hs-name">${h.name}</div><div class="hs-meta">${h.types.map(t=>CRIME_LABELS[t]||t).join(', ')}<br>${h.context}${h.force?' · '+h.force:''}</div></div>
+    <div class="hs-score"><div class="num">${h.risk}</div><div class="slbl">Risk</div><div class="hs-css">CSS: ${h.css||'—'}</div></div>
+  </div>`).join('');
+}
+
+// ── Filter Listeners ──
+document.getElementById('filterForce').addEventListener('change',applyFilters);
+document.getElementById('filterCrime').addEventListener('change',applyFilters);
+document.getElementById('filterPeriod').addEventListener('change',applyFilters);
+document.getElementById('cssMapToggle').addEventListener('change',applyFilters);
+function applyFilters(){renderHotspots(document.getElementById('filterForce').value,document.getElementById('filterCrime').value);}
+
+// ── Charts ──
+Chart.defaults.font.family="'Outfit',sans-serif";Chart.defaults.color='#64748B';
+let temporalChartInstance,trendChartInstance,compareRadarInstance,depChartInstance,forceTypeChartInstance;
+
+function initCharts(){
+  // Crime Trends (12 months)
+  const months=['Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan'];
+  trendChartInstance=new Chart(document.getElementById('trendChart'),{type:'line',data:{labels:months,datasets:[
+    {label:'Violence',data:[4200,3800,4100,4500,5200,5800,6200,5900,5100,4800,4400,4600],borderColor:'#EF4444',backgroundColor:'rgba(239,68,68,.06)',tension:.4,fill:true},
+    {label:'Theft',data:[6800,6200,5900,6400,7200,8500,9200,8800,7600,6900,6100,6500],borderColor:'#2563EB',backgroundColor:'rgba(37,99,235,.06)',tension:.4,fill:true},
+    {label:'Criminal Damage',data:[3400,3200,2900,2600,2400,2200,2100,2300,2800,3100,3500,3300],borderColor:'#F97316',backgroundColor:'rgba(249,115,22,.06)',tension:.4,fill:true},
+    {label:'Drug Offences',data:[1800,1900,2100,2200,2400,2500,2600,2400,2200,2000,1800,1900],borderColor:'#8B5CF6',backgroundColor:'rgba(139,92,246,.06)',tension:.4,fill:true}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',padding:15}}},scales:{y:{beginAtZero:true,ticks:{callback:v=>v>=1000?(v/1000)+'k':v}}}}});
+
+  // Crime Mix Doughnut
+  const mixData=Object.entries(CRIME_LABELS).map(([k,v])=>({label:v,key:k}));
+  const natMix={violence:21,sexual:3.2,robbery:3.5,burglary:10.5,theft:24,damage:11.5,drugs:5,weapons:1.8,'public-order':8,misc:2.8,fraud:6.5,cyber:1.2};
+  new Chart(document.getElementById('crimeMixChart'),{type:'doughnut',data:{labels:mixData.map(m=>m.label),datasets:[{data:mixData.map(m=>natMix[m.key]||1),backgroundColor:['#EF4444','#EC4899','#F97316','#EAB308','#2563EB','#64748B','#8B5CF6','#DC2626','#0D9488','#94A3B8','#6366F1','#14B8A6'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:11},usePointStyle:true,pointStyle:'circle',padding:8}},tooltip:{callbacks:{label:ctx=>ctx.label+': '+ctx.raw+'%'}}},cutout:'60%'}});
+
+  // Risk Doughnut
+  const riskCounts={crit:0,high:0,med:0,low:0};
+  FORCES.forEach(f=>f.hotspots.forEach(h=>riskCounts[h.level]++));
+  new Chart(document.getElementById('riskChart'),{type:'doughnut',data:{labels:['Critical','High','Medium','Low'],datasets:[{data:[riskCounts.crit,riskCounts.high,riskCounts.med,riskCounts.low],backgroundColor:['#EF4444','#F97316','#EAB308','#22C55E'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',padding:12}}},cutout:'62%'}});
+
+  // CSS Trend
+  new Chart(document.getElementById('cssTrendChart'),{type:'line',data:{labels:months,datasets:[
+    {label:'Total Severity Score',data:[14200,13800,13500,13900,14800,15600,16200,15800,14900,14200,13600,13900],borderColor:'#2563EB',backgroundColor:'rgba(37,99,235,.08)',tension:.4,fill:true,pointRadius:3},
+    {label:'Violence CSS',data:[5800,5400,5600,6100,6800,7200,7600,7200,6400,5900,5500,5700],borderColor:'#EF4444',backgroundColor:'rgba(239,68,68,.06)',tension:.4,fill:true,pointRadius:3},
+    {label:'Robbery CSS',data:[2100,1900,2000,2200,2500,2800,3000,2700,2300,2100,1900,2000],borderColor:'#F97316',backgroundColor:'rgba(249,115,22,.06)',tension:.4,fill:true,pointRadius:3}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',padding:12}}},scales:{y:{beginAtZero:true,title:{display:true,text:'Severity Score (weighted days)'},ticks:{callback:v=>v>=1000?(v/1000)+'k':v}}}}});
+
+  // Temporal
+  const tLabels=['00:00','02:00','04:00','06:00','08:00','10:00','12:00','14:00','16:00','18:00','20:00','22:00'];
+  const allTemporal=[85,42,28,35,62,78,95,88,102,124,156,178];
+  temporalChartInstance=new Chart(document.getElementById('temporalChart'),{type:'bar',data:{labels:tLabels,datasets:[{label:'Incident Volume',data:allTemporal,backgroundColor:ctx=>{const v=ctx.raw;return v>150?'#EF4444':v>100?'#F97316':v>70?'#EAB308':'#22C55E';},borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},annotation:{}},scales:{y:{beginAtZero:true},x:{grid:{display:false}}}}});
+
+  // Forecast Chart
+  new Chart(document.getElementById('forecastChart'),{type:'line',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun','Mon','Tue','Wed','Thu'],datasets:[
+    {label:'Actual',data:[720,685,742,798,1089,1245,912,null,null,null,null],borderColor:'#2563EB',backgroundColor:'rgba(37,99,235,.08)',tension:.4,fill:true,pointRadius:4},
+    {label:'Predicted',data:[null,null,null,847,1124,1289,923,712,698,756,802],borderColor:'#0D9488',borderDash:[5,5],tension:.4,pointRadius:4},
+    {label:'95% CI Upper',data:[null,null,null,932,1236,1418,1015,783,768,832,882],borderColor:'rgba(13,148,136,.2)',backgroundColor:'rgba(13,148,136,.06)',fill:'+1',pointRadius:0,borderWidth:1},
+    {label:'95% CI Lower',data:[null,null,null,762,1012,1160,831,641,628,680,722],borderColor:'rgba(13,148,136,.2)',fill:false,pointRadius:0,borderWidth:1}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',padding:12,filter:item=>!item.text.includes('CI')}}},scales:{y:{beginAtZero:true}}}});
+
+  // Category Forecast
+  new Chart(document.getElementById('categoryChart'),{type:'bar',data:{labels:['Violence','Theft','Burglary','Damage','Drugs','Public Order','Robbery'],datasets:[
+    {label:'Current Week',data:[2450,4120,1560,1890,780,1340,560],backgroundColor:'#2563EB',borderRadius:4},
+    {label:'Forecast Next',data:[2680,3890,1420,1950,720,1410,620],backgroundColor:'#0D9488',borderRadius:4}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'rectRounded',padding:12}}},scales:{y:{beginAtZero:true}}}});
+
+  // Seasonal Factors
+  new Chart(document.getElementById('seasonalChart'),{type:'bar',data:{labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],datasets:[
+    {label:'Seasonal Index',data:[0.92,0.88,0.95,1.02,1.08,1.15,1.22,1.18,1.05,0.98,0.90,0.95],backgroundColor:ctx=>ctx.raw>1.1?'#EF4444':ctx.raw>1?'#F97316':ctx.raw>0.9?'#EAB308':'#22C55E',borderRadius:4},
+    {label:'NTE Multiplier',data:[1.05,1.02,1.08,1.12,1.15,1.25,1.32,1.28,1.12,1.08,1.05,1.18],type:'line',borderColor:'#8B5CF6',tension:.4,pointRadius:3}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',padding:12}}},scales:{y:{min:0.7,max:1.5,title:{display:true,text:'Multiplier (1.0 = baseline)'}}}}});
+
+  // Shift Coverage
+  new Chart(document.getElementById('shiftChart'),{type:'line',data:{labels:['06:00','08:00','10:00','12:00','14:00','16:00','18:00','20:00','22:00','00:00','02:00','04:00'],datasets:[
+    {label:'Predicted Demand',data:[35,62,78,95,88,102,124,156,178,145,85,42],borderColor:'#EF4444',tension:.4,fill:false,pointRadius:3},
+    {label:'Current Staffing',data:[45,85,95,100,100,95,110,140,165,130,75,45],borderColor:'#22C55E',tension:.4,fill:false,pointRadius:3},
+    {label:'Recommended',data:[40,70,82,98,92,105,128,160,182,150,88,45],borderColor:'#2563EB',borderDash:[5,5],tension:.4,fill:false,pointRadius:3}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',padding:12}}},scales:{y:{beginAtZero:true,title:{display:true,text:'Personnel / Demand Index'}}}}});
+
+  // Efficiency Radar
+  new Chart(document.getElementById('effChart'),{type:'radar',data:{labels:['Response Time','Area Coverage','Utilisation','Patrol Compliance','Cost Efficiency','Positive Outcomes'],datasets:[
+    {label:'Current',data:[85,88,91,96,82,78],backgroundColor:'rgba(37,99,235,.12)',borderColor:'#2563EB',pointBackgroundColor:'#2563EB',pointRadius:3},
+    {label:'With Hotspot Analytics',data:[92,94,96,98,90,87],backgroundColor:'rgba(13,148,136,.12)',borderColor:'#0D9488',pointBackgroundColor:'#0D9488',pointRadius:3}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',padding:12}}},scales:{r:{beginAtZero:true,max:100,ticks:{stepSize:20}}}}});
+}
+
+// ── Forecast Panel ──
+function renderForecast(forceKey){
+  const force=forceKey==='all'?null:FORCE_MAP[forceKey];
+  const fc=force?force.forecast:{days:['Thu','Fri','Sat','Sun','Mon','Tue','Wed'],values:[847,1124,1289,923,712,698,756],upper:[932,1236,1418,1015,783,768,832],lower:[762,1012,1160,831,641,628,680],confidence:[0.76,0.73,0.71,0.77,0.80,0.79,0.75]};
+  const acc=force?force.kpis.predAccuracy:NATIONAL.avgAccuracy;
+  document.getElementById('fcAccBadge').textContent=acc+'% Accuracy';
+  const grid=document.getElementById('fcGrid');
+  const dates=['5 Feb','6 Feb','7 Feb','8 Feb','9 Feb','10 Feb','11 Feb'];
+  const avg=fc.values.reduce((s,v)=>s+v,0)/7;
+  grid.innerHTML=fc.days.map((d,i)=>{
+    const pct=Math.round((fc.values[i]-avg)/avg*100);
+    const col=pct>20?'var(--red)':pct>5?'var(--orange)':pct<-10?'var(--green)':'var(--amber)';
+    return`<div class="fc-day${i===0?' today':''}"><div class="dn">${i===0?'Today':d}</div><div class="dd">${dates[i]}</div><div class="fv" ${i>0?'style="color:'+col+'"':''}>${fc.values[i].toLocaleString()}</div><div class="fl">${pct>=0?'+':''}${pct}% vs avg</div><div class="ci">${fc.lower[i]}–${fc.upper[i]}</div></div>`;
+  }).join('');
+}
+document.getElementById('forecastForce').addEventListener('change',e=>renderForecast(e.target.value));
+
+// ── Resource Panel ──
+function renderResources(){
+  document.getElementById('resGrid').innerHTML=`
+    <div class="res-card"><div class="res-name">Foot Patrol Officers</div><div class="res-val">186</div><div class="res-status">Hotspot patrols (10-16 min Koper)</div></div>
+    <div class="res-card"><div class="res-name">Response Vehicles</div><div class="res-val">42</div><div class="res-status">Mobile rapid response</div></div>
+    <div class="res-card"><div class="res-name">PCSOs</div><div class="res-val">94</div><div class="res-status">Community visibility patrols</div></div>
+    <div class="res-card"><div class="res-name">Control Room Staff</div><div class="res-val">28</div><div class="res-status">999/101 dispatch capacity</div></div>
+    <div class="res-card"><div class="res-name">Specialist Units</div><div class="res-val">16</div><div class="res-status">Knife crime / drugs taskforce</div></div>
+    <div class="res-card"><div class="res-name">Special Constables</div><div class="res-val">45</div><div class="res-status">Weekend NTE surge support</div></div>`;
+}
+
+// ── PEEL Panel ──
+function renderPEEL(forceKey){
+  const force=forceKey==='all'?null:FORCE_MAP[forceKey];
+  const k=force?force.kpis:{crimeReduction:-17,predAccuracy:76.4,responseTime:8.5,publicConfidence:74,patrolCompliance:95,victimSatisfaction:81};
+  document.getElementById('peelEff').innerHTML=`
+    <div class="pm"><span class="pm-l">Crime Reduction</span><span class="pm-v">${k.crimeReduction}%</span></div>
+    <div class="pm"><span class="pm-l">Repeat Victim Prevention</span><span class="pm-v">${Math.round(68+Math.random()*12)}%</span></div>
+    <div class="pm"><span class="pm-l">Serious Violence Reduction</span><span class="pm-v">${(parseFloat(k.crimeReduction)*1.3).toFixed(1)}%</span></div>
+    <div class="pm"><span class="pm-l">Positive Outcomes</span><span class="pm-v">+${Math.round(8+Math.random()*8)}%</span></div>`;
+  document.getElementById('peelEffi').innerHTML=`
+    <div class="pm"><span class="pm-l">Resource Utilisation</span><span class="pm-v">${Math.round(88+Math.random()*8)}%</span></div>
+    <div class="pm"><span class="pm-l">Response Time</span><span class="pm-v">${k.responseTime} min</span></div>
+    <div class="pm"><span class="pm-l">Cost per Incident</span><span class="pm-v">-${Math.round(10+Math.random()*10)}%</span></div>
+    <div class="pm"><span class="pm-l">Patrol Compliance</span><span class="pm-v">${k.patrolCompliance}%</span></div>`;
+  document.getElementById('peelLeg').innerHTML=`
+    <div class="pm"><span class="pm-l">Public Confidence</span><span class="pm-v">${k.publicConfidence}%</span></div>
+    <div class="pm"><span class="pm-l">Stop & Search Fairness</span><span class="pm-v">${k.publicConfidence>75?'Good':'Requires review'}</span></div>
+    <div class="pm"><span class="pm-l">Complaints Trend</span><span class="pm-v">-${Math.round(15+Math.random()*15)}%</span></div>
+    <div class="pm"><span class="pm-l">Victim Satisfaction</span><span class="pm-v">${k.victimSatisfaction}%</span></div>`;
+  document.getElementById('peelAlignment').innerHTML=`
+    <div style="padding:1rem;background:var(--g50);border-radius:10px"><h4 style="font-size:.9rem;color:var(--blue);margin-bottom:.4rem">Effectiveness</h4><p style="font-size:.85rem;color:var(--g600);line-height:1.5">Hotspot analytics directly supports crime reduction by targeting resources at the 5% of locations generating 50% of crime. The College of Policing's systematic review confirms 16% average crime reduction at treatment locations.</p></div>
+    <div style="padding:1rem;background:var(--g50);border-radius:10px"><h4 style="font-size:.9rem;color:var(--teal);margin-bottom:.4rem">Efficiency</h4><p style="font-size:.85rem;color:var(--g600);line-height:1.5">Demand forecasting optimises shift patterns and resource allocation, reducing response times while maintaining coverage. The Koper Curve evidence base ensures patrol time is used optimally at 10-16 minute dosages.</p></div>
+    <div style="padding:1rem;background:var(--g50);border-radius:10px"><h4 style="font-size:.9rem;color:var(--purple);margin-bottom:.4rem">Legitimacy</h4><p style="font-size:.85rem;color:var(--g600);line-height:1.5">Evidence shows hotspot policing does not negatively impact community relations. Procedural justice elements combined with visible, accountable patrolling enhance public confidence. All algorithmic decisions follow the ALGO-CARE ethical framework.</p></div>`;
+}
+document.getElementById('peelForce').addEventListener('change',e=>renderPEEL(e.target.value));
+
+// ── Force Comparison ──
+function renderRankings(){
+  const metric=document.getElementById('rankMetric').value;
+  const region=document.getElementById('regionFilter').value;
+  let forces=region==='all'?[...FORCES]:FORCES.filter(f=>f.region===region);
+  const metricConfig={
+    crimeRate:{label:'Crime Rate per 1,000',get:f=>f.crimeRate,fmt:v=>v.toFixed(1),asc:true},
+    severityScore:{label:'Crime Severity Score',get:f=>f.severityScore,fmt:v=>v.toLocaleString(),asc:true},
+    officerRatio:{label:'Officer:Population Ratio',get:f=>Math.round(f.population/f.officers),fmt:v=>'1:'+v,asc:true},
+    predAccuracy:{label:'Prediction Accuracy',get:f=>f.kpis.predAccuracy,fmt:v=>v+'%',asc:false},
+    responseTime:{label:'Response Time (mins)',get:f=>f.kpis.responseTime,fmt:v=>v+' min',asc:true},
+    crimeReduction:{label:'Crime Reduction %',get:f=>Math.abs(parseFloat(f.kpis.crimeReduction)),fmt:v=>'-'+v.toFixed(1)+'%',asc:false},
+    publicConfidence:{label:'Public Confidence',get:f=>parseInt(f.kpis.publicConfidence),fmt:v=>v+'%',asc:false},
+    deprivation:{label:'Deprivation Rank (1=most deprived)',get:f=>f.deprivationRank,fmt:v=>v+'/43',asc:true}
+  };
+  const mc=metricConfig[metric];
+  forces.sort((a,b)=>mc.asc?(mc.get(a)-mc.get(b)):(mc.get(b)-mc.get(a)));
+  const maxVal=Math.max(...forces.map(f=>mc.get(f)));
+  document.getElementById('rankSub').textContent=(region==='all'?'All 43':region)+' forces ranked by '+mc.label;
+  document.getElementById('rankTableWrap').innerHTML=`<table class="rank-table"><thead><tr><th>#</th><th>Force</th><th>Region</th><th>Type</th><th>${mc.label}</th><th>Bar</th></tr></thead><tbody>${forces.map((f,i)=>`<tr><td class="rank-num">${i+1}</td><td class="force-name">${f.name}</td><td>${f.region}</td><td style="text-transform:capitalize">${f.type}</td><td class="metric-val">${mc.fmt(mc.get(f))}</td><td class="bar-cell"><div class="rank-bar" style="width:${(mc.get(f)/maxVal*100).toFixed(0)}%"></div></td></tr>`).join('')}</tbody></table>`;
+}
+function renderCompareRadar(){
+  const sel=document.getElementById('compareForces');
+  const selected=[...sel.selectedOptions].map(o=>o.value).slice(0,4);
+  if(selected.length<2)return;
+  const colors=['#2563EB','#EF4444','#0D9488','#8B5CF6'];
+  const datasets=selected.map((k,i)=>{
+    const f=FORCE_MAP[k];if(!f)return null;
+    const maxCR=Math.max(...FORCES.map(x=>x.crimeRate));
+    return{label:f.name,data:[
+      100-((f.kpis.responseTime/15)*100),
+      f.kpis.predAccuracy,
+      parseInt(f.kpis.patrolCompliance),
+      parseInt(f.kpis.publicConfidence),
+      Math.abs(parseFloat(f.kpis.crimeReduction))*4,
+      parseInt(f.kpis.victimSatisfaction)
+    ],backgroundColor:colors[i]+'20',borderColor:colors[i],pointBackgroundColor:colors[i],pointRadius:3};
+  }).filter(Boolean);
+  if(compareRadarInstance)compareRadarInstance.destroy();
+  compareRadarInstance=new Chart(document.getElementById('compareRadar'),{type:'radar',data:{labels:['Response Time','Prediction Accuracy','Patrol Compliance','Public Confidence','Crime Reduction','Victim Satisfaction'],datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',padding:10}}},scales:{r:{beginAtZero:true,max:100,ticks:{stepSize:25}}}}});
+}
+function renderDeprivationChart(){
+  const data=FORCES.filter(f=>f.key!=='city-of-london').map(f=>({x:f.deprivationRank,y:f.crimeRate,name:f.name,type:f.type}));
+  if(depChartInstance)depChartInstance.destroy();
+  depChartInstance=new Chart(document.getElementById('deprivationChart'),{type:'scatter',data:{datasets:[
+    {label:'Urban',data:data.filter(d=>d.type==='urban'),backgroundColor:'#EF4444',pointRadius:6},
+    {label:'Mixed',data:data.filter(d=>d.type==='mixed'),backgroundColor:'#F97316',pointRadius:6},
+    {label:'Rural',data:data.filter(d=>d.type==='rural'),backgroundColor:'#22C55E',pointRadius:6}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',padding:12}},tooltip:{callbacks:{label:ctx=>{const d=ctx.raw;return d.name+' — Dep:'+d.x+' CR:'+d.y;}}}},scales:{x:{title:{display:true,text:'Deprivation Rank (1 = most deprived force)'}},y:{title:{display:true,text:'Crime Rate per 1,000 pop'}}}}});
+}
+function renderForceTypeChart(){
+  const types=['urban','mixed','rural'];
+  const avgByType=types.map(t=>{const fs=FORCES.filter(f=>f.type===t);return Math.round(fs.reduce((s,f)=>s+f.severityScore,0)/fs.length);});
+  const crByType=types.map(t=>{const fs=FORCES.filter(f=>f.type===t);return+(fs.reduce((s,f)=>s+f.crimeRate,0)/fs.length).toFixed(1);});
+  if(forceTypeChartInstance)forceTypeChartInstance.destroy();
+  forceTypeChartInstance=new Chart(document.getElementById('forceTypeChart'),{type:'bar',data:{labels:['Urban','Mixed','Rural'],datasets:[
+    {label:'Avg Severity Score',data:avgByType,backgroundColor:['#EF4444','#F97316','#22C55E'],borderRadius:6,yAxisID:'y'},
+    {label:'Avg Crime Rate/1k',data:crByType,type:'line',borderColor:'#2563EB',pointBackgroundColor:'#2563EB',tension:.4,yAxisID:'y1'}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',padding:12}}},scales:{y:{beginAtZero:true,position:'left',title:{display:true,text:'Severity Score'}},y1:{beginAtZero:true,position:'right',grid:{drawOnChartArea:false},title:{display:true,text:'Crime Rate / 1,000'}}}}});
+}
+document.getElementById('rankMetric').addEventListener('change',renderRankings);
+document.getElementById('regionFilter').addEventListener('change',renderRankings);
+document.getElementById('compareForces').addEventListener('change',renderCompareRadar);
+
+// ── AI Insights ──
+function generateInsights(forceKey,priority){
+  const grid=document.getElementById('insightsGrid');
+  const allInsights=[];
+  const addIns=(pri,title,text,conf,source,age)=>allInsights.push({pri,title,text,conf,source,age});
+
+  // Force-specific insights
+  if(forceKey!=='all'){
+    const f=FORCE_MAP[forceKey];if(!f)return;
+    const topHS=f.hotspots.sort((a,b)=>b.risk-a.risk)[0];
+    const nteHS=f.hotspots.find(h=>h.context.toLowerCase().includes('nte'));
+    const depHS=f.hotspots.find(h=>h.deprivation<=2);
+    addIns('crit','Critical Hotspot Alert',`<strong>${topHS.name}</strong> has a risk score of ${topHS.risk} with primary crime types: ${topHS.types.map(t=>CRIME_LABELS[t]||t).join(', ')}. CSS: ${topHS.css}. Recommend immediate Koper Curve patrols (15-min, 4x daily).`,92,'Hotspot Model','1 hour ago');
+    if(nteHS)addIns('h','NTE Violence Pattern',`<strong>${nteHS.name}</strong> shows elevated risk during night-time economy hours (22:00-03:00). ${f.name} should deploy ${Math.round(f.officers*0.02)} additional officers during Friday/Saturday NTE peak. Historical data shows +${Math.round(30+Math.random()*20)}% incident uplift.`,87,'Temporal Analysis','2 hours ago');
+    if(depHS)addIns('h','Deprivation Correlation',`<strong>${depHS.name}</strong> falls in IMD deprivation decile ${depHS.deprivation}. ${Math.round(f.hotspots.filter(h=>h.deprivation<=2).length/f.hotspots.length*100)}% of ${f.name} hotspots are in the most deprived areas. Consider Problem-Oriented Policing alongside patrol.`,84,'IMD Analysis','3 hours ago');
+    addIns('m','Forecast Confidence',`7-day demand forecast for <strong>${f.name}</strong> shows ${f.forecast.values[1]>f.forecast.values[0]?'increasing':'stable'} demand. Weekend peak predicted at ${Math.max(...f.forecast.values).toLocaleString()} incidents. Model accuracy: ${f.kpis.predAccuracy}%.`,f.kpis.predAccuracy,'ML Forecast','4 hours ago');
+    addIns('m','Resource Optimisation',`Current officer deployment of ${f.kpis.officersDeployed} could be optimised. Analysis suggests reallocating ${Math.round(f.kpis.officersDeployed*0.08)} officers from low-risk to critical hotspots during peak hours would reduce coverage gaps by ~${Math.round(10+Math.random()*12)}%.`,88,'Allocation Engine','6 hours ago');
+    addIns('l','Seasonal Trend',`${f.type==='rural'?'Rural':'Urban'} crime patterns for ${f.name} show ${new Date().getMonth()<5?'rising':'declining'} seasonal trend. Vehicle crime typically ${new Date().getMonth()>9||new Date().getMonth()<2?'rises':'falls'} in this period. Adjust patrol routes accordingly.`,91,'Seasonal Model','8 hours ago');
+  } else {
+    addIns('crit','National NTE Surge — Friday',`Cross-force analysis shows <strong>Friday evening violence risk is 33% above baseline</strong> nationally. Forces with highest NTE exposure: Metropolitan, GMP, West Midlands, Merseyside. Coordinated deployment recommended 22:00-03:00.`,89,'National Model','1 hour ago');
+    addIns('h','Cross-Border Drug Pattern',`Intelligence indicates drug supply route displacement from <strong>West Midlands to Warwickshire/Staffordshire</strong> following recent enforcement. 3 forces should coordinate county lines response.`,82,'Pattern Analysis','2 hours ago');
+    addIns('h','Deprivation-Crime Nexus',`<strong>78% of critical hotspots nationally are in IMD decile 1-3 areas</strong>. Forces with strongest correlation: Cleveland, Merseyside, South Yorkshire. Consider integrated early intervention with partner agencies.`,91,'IMD Correlation','3 hours ago');
+    addIns('m','Weekend Demand Spike',`National forecast predicts <strong>Saturday peak at ~52% above weekday average</strong>. Top 10 forces by absolute demand increase: Met, GMP, West Midlands, West Yorkshire, Merseyside, South Yorkshire, Lancashire, Kent, Essex, Thames Valley.`,86,'ML Forecast','4 hours ago');
+    addIns('m','Koper Curve Compliance',`National patrol compliance at <strong>${Math.round(FORCES.reduce((s,f)=>s+parseInt(f.kpis.patrolCompliance),0)/43)}% average</strong>. Forces below 90% should review hotspot visit scheduling. Evidence shows 15-minute patrols yield 38% better deterrence.`,94,'Compliance Monitor','6 hours ago');
+    addIns('l','Seasonal Forecast',`February historically shows <strong>lowest crime volumes</strong> before spring uptick. Vehicle crime and burglary show early seasonal increases. Rural forces should anticipate agricultural crime patterns.`,92,'Historical Model','12 hours ago');
+    addIns('l','Model Performance',`National prediction accuracy averaging <strong>${NATIONAL.avgAccuracy}%</strong> across all 43 forces. Top performers: forces with integrated data platforms. Recommendation: expand data source integration (weather, events, transport) for improved accuracy.`,95,'Model Quality','1 day ago');
+    addIns('m','ASB Seasonal Pattern',`Anti-social behaviour incidents typically <strong>increase 22-30% from March onwards</strong> as daylight hours extend. Forces should prepare hotspot patrol plans for parks, retail centres, and residential areas.`,88,'Seasonal Analysis','8 hours ago');
+    addIns('h','Weapons Hotspot Concentration',`<strong>62% of weapons possession hotspots</strong> are concentrated in just 8 forces (Met, GMP, WMP, West Yorkshire, Merseyside, South Yorkshire, Nottinghamshire, Cleveland). Targeted enforcement operations recommended.`,85,'Cross-Force Intelligence','5 hours ago');
+  }
+  let filtered=allInsights;
+  if(priority!=='all')filtered=allInsights.filter(ins=>ins.pri===priority);
+  grid.innerHTML=filtered.map(ins=>`<div class="ins"><div class="ins-pri ${ins.pri}">${ins.pri==='crit'?'Critical':ins.pri==='h'?'High Priority':ins.pri==='m'?'Medium':ins.pri==='l'?'Low Priority':ins.pri}</div><div class="ins-txt">${ins.text}</div><div class="ins-meta">${ins.age} · Confidence: ${ins.conf}% <span class="ins-source">${ins.source}</span></div></div>`).join('');
+}
+document.getElementById('insightForce').addEventListener('change',e=>generateInsights(e.target.value,document.getElementById('insightPriority').value));
+document.getElementById('insightPriority').addEventListener('change',e=>generateInsights(document.getElementById('insightForce').value,e.target.value));
+
+// ── Init ──
+document.addEventListener('DOMContentLoaded',()=>{
+  populateForceDropdowns();
+  initHeroMap();
+  initMainMap();
+  initCharts();
+  renderKPIs(null);
+  renderForecast('all');
+  renderResources();
+  renderPEEL('all');
+  renderRankings();
+  renderDeprivationChart();
+  renderForceTypeChart();
+  generateInsights('all','all');
+});
+</script>
+</body>
+</html>
